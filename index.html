@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCUS NODE — Testnet Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#050810; --surface:#0d1220; --surface2:#141928; --border:#1e2a40;
+    --accent:#00d4ff; --accent2:#7c4dff; --accent3:#00ff9d; --warn:#ff6b35; --gold:#ffd700;
+    --text:#e8eaf0; --text2:#8892a4; --text3:#4a5568;
+    --mono:'Space Mono',monospace;
+    --sans:'Noto Sans KR','Noto Sans JP',sans-serif;
+    --radius:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+    background-size:40px 40px;
+  }
+  .hero-glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(0,212,255,.07) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+  /* ── NAV ── */
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(5,8,16,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+  .nav-logo{font-family:var(--mono);font-size:14px;letter-spacing:.2em;color:var(--accent)}
+  .nav-logo span{color:var(--text2)}
+  .nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .nav-pts{font-family:var(--mono);font-size:12px;color:var(--gold);background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);padding:6px 14px;border-radius:100px}
+  .nav-status{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--text2)}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,255,157,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(0,255,157,0)}}
+
+  /* ── 언어 선택 ── */
+  .lang-switcher{display:flex;gap:4px}
+  .lang-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;transition:all .18s;letter-spacing:.05em}
+  .lang-btn:hover{color:var(--text2);border-color:rgba(0,212,255,.3)}
+  .lang-btn.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--accent)}
+
+  /* ── TABS ── */
+  .tabs-wrap{position:relative;z-index:1;border-bottom:1px solid var(--border);background:rgba(5,8,16,.6)}
+  .tabs{display:flex;gap:2px;padding:0 28px;max-width:1100px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab-btn{background:none;border:none;padding:13px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px;white-space:nowrap}
+  .tab-btn:hover{color:var(--text2)}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab-panel{display:none}
+  .tab-panel.active{display:block}
+
+  .container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px}
+
+  /* ── 공통 ── */
+  .section-header{margin-bottom:28px}
+  .section-title{font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:5px}
+  .section-sub{font-size:14px;color:var(--text2)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ══════════════════════════
+     HOME TAB
+  ══════════════════════════ */
+  .hero{padding:72px 0 40px;text-align:center}
+  .hero-tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent);border:1px solid rgba(0,212,255,.3);padding:5px 14px;border-radius:100px;margin-bottom:22px;animation:fadeUp .6s ease both}
+  .hero h1{font-size:clamp(34px,6vw,68px);font-weight:700;font-family:var(--mono);line-height:1.1;letter-spacing:-.02em;animation:fadeUp .6s .1s ease both}
+  .hero h1 .line2{display:block;color:var(--accent)}
+  .hero-sub{margin:18px auto 0;max-width:480px;color:var(--text2);font-size:15px;line-height:1.7;animation:fadeUp .6s .2s ease both}
+
+  .wallet-card{margin:36px auto 0;max-width:420px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;animation:fadeUp .6s .3s ease both;box-shadow:0 0 30px rgba(0,212,255,.1)}
+  .wallet-card-title{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--text2);margin-bottom:18px}
+  #connect-section{text-align:center}
+  .btn-connect{width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.1em;color:#fff;cursor:pointer;transition:all .25s;text-transform:uppercase}
+  .btn-connect:hover{opacity:.9;transform:translateY(-1px)}
+  .connect-note{margin-top:10px;font-size:12px;color:var(--text3)}
+  #wallet-info{display:none}
+  .wallet-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--surface2);border-radius:8px;margin-bottom:7px}
+  .wallet-row-label{font-family:var(--mono);font-size:11px;color:var(--text2)}
+  .wallet-row-val{font-family:var(--mono);font-size:12px;color:var(--text)}
+  .wallet-row-val.green{color:var(--accent3)}
+  .wallet-row-val.cyan{color:var(--accent)}
+  .btn-claim{width:100%;margin-top:14px;padding:13px;background:transparent;border:1px solid var(--accent3);border-radius:var(--radius);font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--accent3);cursor:pointer;transition:all .2s;text-transform:uppercase}
+  .btn-claim:hover{background:rgba(0,255,157,.08);box-shadow:0 0 16px rgba(0,255,157,.12)}
+  .btn-claim:disabled{opacity:.4;cursor:not-allowed;border-color:var(--text3);color:var(--text3)}
+
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:28px 0}
+  .stat-item{background:var(--surface);padding:22px;text-align:center}
+  .stat-num{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--accent);display:block}
+  .stat-label{font-size:12px;color:var(--text2);margin-top:3px}
+
+  /* ══════════════════════════
+     BADGES TAB
+  ══════════════════════════ */
+  .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+  .badge-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 18px;text-align:center;transition:all .22s;position:relative;overflow:hidden}
+  .badge-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px)}
+  .badge-card.earned{border-color:rgba(0,255,157,.35);box-shadow:0 0 18px rgba(0,255,157,.07)}
+  .badge-card.locked{opacity:.48;filter:grayscale(.5)}
+  .badge-icon{font-size:38px;margin-bottom:10px;display:block;filter:drop-shadow(0 0 7px rgba(0,212,255,.25))}
+  .badge-card.locked .badge-icon{filter:grayscale(1)}
+  .badge-name{font-family:var(--mono);font-size:13px;font-weight:700;margin-bottom:5px}
+  .badge-desc{font-size:12px;color:var(--text2);line-height:1.5}
+  .badge-status{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:3px 10px;border-radius:100px;text-transform:uppercase}
+  .badge-status.earned-tag{background:rgba(0,255,157,.1);color:var(--accent3);border:1px solid rgba(0,255,157,.3)}
+  .badge-status.locked-tag{background:rgba(255,255,255,.03);color:var(--text3);border:1px solid var(--border)}
+
+  /* ══════════════════════════
+     RANKING TAB
+  ══════════════════════════ */
+  .leaderboard{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .lb-header{display:grid;grid-template-columns:48px 1fr 110px 90px 90px;padding:11px 20px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+  .lb-row{display:grid;grid-template-columns:48px 1fr 110px 90px 90px;padding:13px 20px;border-bottom:1px solid rgba(30,42,64,.5);align-items:center;transition:background .15s}
+  .lb-row:last-child{border-bottom:none}
+  .lb-row:hover{background:var(--surface2)}
+  .lb-row.me{background:rgba(0,212,255,.04);border-left:2px solid var(--accent)}
+  .lb-rank{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)}
+  .lb-rank.gold{color:#ffd700} .lb-rank.silver{color:#c0c0c0} .lb-rank.bronze{color:#cd7f32}
+  .lb-addr{font-family:var(--mono);font-size:13px}
+  .me-tag{margin-left:8px;font-size:10px;color:var(--accent);background:rgba(0,212,255,.1);padding:2px 6px;border-radius:4px}
+  .lb-badges{display:flex;gap:3px;flex-wrap:wrap}
+  .lb-badge-dot{font-size:15px}
+  .lb-points{font-family:var(--mono);font-size:13px;color:var(--accent);text-align:right}
+  .lb-level{font-family:var(--mono);font-size:11px;color:var(--text2);text-align:right}
+
+  /* ══════════════════════════
+     QUIZ TAB
+  ══════════════════════════ */
+  .quiz-wrap{max-width:640px;margin:0 auto}
+  .quiz-start{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:44px 36px;text-align:center}
+  .quiz-start-icon{font-size:52px;margin-bottom:18px;display:block}
+  .quiz-start h2{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:10px}
+  .quiz-start p{color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:26px}
+  .quiz-info-row{display:flex;justify-content:center;gap:14px;margin-bottom:28px}
+  .quiz-info-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 18px;text-align:center}
+  .quiz-info-num{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent);display:block}
+  .quiz-info-label{font-size:12px;color:var(--text2);margin-top:2px}
+  .quiz-game{display:none}
+  .quiz-progress-bar{height:3px;background:var(--border);border-radius:100px;margin-bottom:28px;overflow:hidden}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;transition:width .4s ease}
+  .quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .quiz-qnum{font-family:var(--mono);font-size:12px;color:var(--text2);letter-spacing:.1em}
+  .quiz-timer{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent3);transition:color .3s}
+  .quiz-timer.urgent{color:var(--warn);animation:timerPulse .5s ease-in-out infinite}
+  @keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .quiz-question{font-size:17px;font-weight:500;line-height:1.6;margin-bottom:24px;min-height:56px}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+  .quiz-option{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:14px;color:var(--text);cursor:pointer;transition:all .18s;text-align:left;display:flex;align-items:center;gap:11px;font-family:var(--sans)}
+  .quiz-option:hover:not(:disabled){border-color:rgba(0,212,255,.4);background:var(--surface2);transform:translateX(4px)}
+  .quiz-option:disabled{cursor:default}
+  .quiz-option.correct{border-color:var(--accent3);background:rgba(0,255,157,.08);color:var(--accent3)}
+  .quiz-option.wrong{border-color:var(--warn);background:rgba(255,107,53,.08);color:var(--warn)}
+  .quiz-option.reveal{border-color:rgba(0,255,157,.25);background:rgba(0,255,157,.04)}
+  .opt-letter{font-family:var(--mono);font-size:11px;font-weight:700;width:22px;height:22px;border:1px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s}
+  .quiz-option.correct .opt-letter{background:var(--accent3);color:#000;border-color:var(--accent3)}
+  .quiz-option.wrong   .opt-letter{background:var(--warn);color:#fff;border-color:var(--warn)}
+  .quiz-option.reveal  .opt-letter{background:rgba(0,255,157,.15);border-color:var(--accent3);color:var(--accent3)}
+  .quiz-explanation{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:13px 15px;font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;display:none}
+  .quiz-explanation.show{display:block;animation:fadeIn .3s ease}
+  .btn-next{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;color:#fff;cursor:pointer;transition:all .2s;display:none;text-transform:uppercase}
+  .btn-next.show{display:block;animation:fadeIn .3s ease}
+  .btn-next:hover{opacity:.9;transform:translateY(-1px)}
+  .quiz-result{display:none;text-align:center}
+  .result-circle{width:110px;height:110px;border-radius:50%;border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;box-shadow:0 0 36px rgba(0,212,255,.18)}
+  .result-score-big{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--accent)}
+  .result-title{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:7px}
+  .result-sub{color:var(--text2);font-size:14px;margin-bottom:28px}
+  .result-rewards{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:24px}
+  .reward-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(30,42,64,.7)}
+  .reward-row:last-child{border-bottom:none}
+  .reward-label{font-size:13px;color:var(--text2)}
+  .reward-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent3)}
+  .reward-val.pts{color:var(--gold)}
+  .result-btns{display:flex;gap:11px}
+  .btn-retry{flex:1;padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text2);cursor:pointer;transition:all .2s;text-transform:uppercase}
+  .btn-retry:hover{border-color:rgba(0,212,255,.3);color:var(--text)}
+  .btn-share{flex:1;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:#fff;cursor:pointer;transition:all .2s;text-transform:uppercase}
+  .btn-share:hover{opacity:.9}
+
+  /* ══════════════════════════
+     PREDICT TAB
+  ══════════════════════════ */
+  .predict-header{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 26px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between}
+  .predict-header-left h3{font-family:var(--mono);font-size:14px;margin-bottom:4px}
+  .predict-header-left p{font-size:13px;color:var(--text2)}
+  .predict-pool-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold);display:block}
+  .predict-pool-label{font-size:12px;color:var(--text2)}
+  .predict-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+  .predict-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;transition:all .2s}
+  .predict-card:hover{border-color:rgba(124,77,255,.3)}
+  .predict-card-tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+  .predict-card-tag.open{background:rgba(0,255,157,.1);color:var(--accent3);border:1px solid rgba(0,255,157,.2)}
+  .predict-card-tag.ended{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+  .predict-q{font-size:14px;font-weight:500;line-height:1.6;margin-bottom:18px;min-height:44px}
+  .predict-options{display:flex;gap:9px;margin-bottom:16px}
+  .predict-opt{flex:1;padding:9px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);font-family:var(--mono);font-size:11px;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center}
+  .predict-opt:hover:not(:disabled){border-color:rgba(124,77,255,.5);color:var(--text)}
+  .predict-opt.selected-yes{background:rgba(0,255,157,.1);border-color:var(--accent3);color:var(--accent3)}
+  .predict-opt.selected-no{background:rgba(255,107,53,.1);border-color:var(--warn);color:var(--warn)}
+  .predict-opt:disabled{cursor:default;opacity:.6}
+  .predict-bar-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:5px}
+  .predict-bar{height:5px;background:var(--border);border-radius:100px;overflow:hidden}
+  .predict-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:100px;transition:width .6s ease}
+  .predict-voters{font-size:12px;color:var(--text3);text-align:right;margin-top:5px}
+
+  /* ══════════════════════════
+     TX TAB
+  ══════════════════════════ */
+  .tx-board{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:22px}
+  .tx-board-header{background:var(--surface2);padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .tx-board-title{font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+  .tx-period{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .tx-row{display:grid;grid-template-columns:42px 1fr 100px 90px;padding:13px 22px;border-bottom:1px solid rgba(30,42,64,.5);align-items:center}
+  .tx-row:last-child{border-bottom:none}
+  .tx-rank{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text2)}
+  .tx-rank.g{color:var(--gold)}
+  .tx-addr{font-family:var(--mono);font-size:13px}
+  .tx-count{font-family:var(--mono);font-size:13px;color:var(--accent);text-align:right}
+  .tx-reward{font-family:var(--mono);font-size:11px;color:var(--accent3);text-align:right}
+  .tx-submit-card{background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:26px}
+  .tx-submit-title{font-family:var(--mono);font-size:13px;margin-bottom:14px;color:var(--accent)}
+  .tx-input-row{display:flex;gap:10px}
+  .tx-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;font-family:var(--mono);font-size:13px;color:var(--text);outline:none;transition:border-color .2s}
+  .tx-input:focus{border-color:rgba(0,212,255,.4)}
+  .tx-submit-btn{padding:11px 18px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:var(--radius);font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--accent);cursor:pointer;transition:all .2s;white-space:nowrap}
+  .tx-submit-btn:hover{background:rgba(0,212,255,.18)}
+  .tx-note{margin-top:9px;font-size:12px;color:var(--text3)}
+
+  /* ══════════════════════════
+     BOARD TAB
+  ══════════════════════════ */
+  .board-locked{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:56px 36px;text-align:center}
+  .board-lock-icon{font-size:46px;margin-bottom:14px;display:block;filter:grayscale(.5)}
+  .board-lock-title{font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:7px}
+  .board-lock-desc{color:var(--text2);font-size:14px;line-height:1.6}
+  .board-posts{display:none}
+  .post-write{display:flex;gap:10px;margin-bottom:18px}
+  .post-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 15px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
+  .post-input:focus{border-color:rgba(0,212,255,.4)}
+  .post-submit{padding:11px 18px;background:var(--accent);border:none;border-radius:var(--radius);font-family:var(--mono);font-size:12px;font-weight:700;color:#000;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .post-submit:hover{background:#33ddff}
+  .post-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:10px;transition:all .2s;cursor:pointer}
+  .post-item:hover{border-color:rgba(0,212,255,.25);background:var(--surface2)}
+  .post-meta{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+  .post-author{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  .post-time{font-size:12px;color:var(--text3)}
+  .post-badge-mini{font-size:14px}
+  .post-title{font-size:15px;font-weight:500;margin-bottom:3px}
+  .post-preview{font-size:13px;color:var(--text2)}
+
+  /* ── 공통 버튼 ── */
+  .btn-primary{padding:13px 30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius);font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.08em;color:#fff;cursor:pointer;transition:all .2s;text-transform:uppercase}
+  .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+
+  /* ── TOAST ── */
+  #toast{position:fixed;bottom:28px;right:28px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 18px;font-family:var(--mono);font-size:13px;color:var(--text);z-index:999;transform:translateY(100px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+  #toast.show{transform:translateY(0);opacity:1}
+  #toast.success{border-color:rgba(0,255,157,.4);color:var(--accent3)}
+  #toast.error{border-color:rgba(255,107,53,.4);color:var(--warn)}
+  #toast.gold{border-color:rgba(255,215,0,.4);color:var(--gold)}
+
+  /* ── 반응형 ── */
+  @media(max-width:640px){
+    nav{padding:12px 16px}
+    .tabs{padding:0 16px}
+    .container{padding:28px 16px}
+    .stats-bar{grid-template-columns:1fr}
+    .lb-header,.lb-row{grid-template-columns:36px 1fr 60px}
+    .lb-badges,.lb-level{display:none}
+    .predict-cards{grid-template-columns:1fr}
+    .tx-row{grid-template-columns:36px 1fr 80px}
+    .tx-reward{display:none}
+  }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBYqF7LqqYzbpOkIeH_W9wqw1eKJDD8jgQ",
+  authDomain: "locus-community.firebaseapp.com",
+  databaseURL: "https://locus-community-default-rtdb.firebaseio.com",
+  projectId: "locus-community",
+  storageBucket: "locus-community.firebasestorage.app",
+  messagingSenderId: "434205003564",
+  appId: "1:434205003564:web:a89c3969d1096b657e2689",
+  measurementId: "G-GPJECDS8NQ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
+</head>
+<body>
+<div class="hero-glow"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">LOCUS <span>NODE</span></div>
+  <div class="nav-right">
+    <div class="nav-status"><div class="status-dot"></div><span data-i18n="nav_testnet">TESTNET V2 LIVE</span></div>
+    <div class="nav-pts" id="nav-pts">0 PTS</div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('ja')">JA</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── TABS ── -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('home',this)" data-i18n="tab_home">홈</button>
+    <button class="tab-btn" onclick="switchTab('badges',this)" data-i18n="tab_badges">배지</button>
+    <button class="tab-btn" onclick="switchTab('ranking',this)" data-i18n="tab_ranking">랭킹</button>
+    <button class="tab-btn" onclick="switchTab('quiz',this)" data-i18n="tab_quiz">퀴즈</button>
+    <button class="tab-btn" onclick="switchTab('predict',this)" data-i18n="tab_predict">예측</button>
+    <button class="tab-btn" onclick="switchTab('tx',this)" data-i18n="tab_tx">TX 경쟁</button>
+    <button class="tab-btn" onclick="switchTab('board',this)" data-i18n="tab_board">게시판</button>
+    <button class="tab-btn" onclick="switchTab('price',this)" data-i18n="tab_price">📈 LOCUS</button>
+    <button class="tab-btn" onclick="switchTab('puzzle',this)" data-i18n="tab_puzzle">🧩 퍼즐</button>
+  </div>
+</div>
+
+<!-- ══════════ HOME ══════════ -->
+<div id="tab-home" class="tab-panel active">
+  <div class="container">
+    <div class="hero">
+      <div class="hero-tag" data-i18n="hero_tag">✦ Locus Chain Testnet V2</div>
+      <h1>LOCUS NODE<span class="line2">COMMUNITY</span></h1>
+      <p class="hero-sub" data-i18n="hero_sub">테스트넷 참여자들의 공간. 지갑을 연결하고 활동을 인증받으세요.</p>
+      <div class="wallet-card">
+        <div class="wallet-card-title" data-i18n="wallet_connect_title">// 지갑 연결</div>
+        <div id="connect-section">
+          <button class="btn-connect" onclick="connectWallet()" data-i18n="btn_connect">⬡ Locus Wallet 연결</button>
+          <p class="connect-note" data-i18n="connect_note">⚠ Locus Wallet 브라우저 확장이 필요합니다 — 미설치 시 연결 불가</p>
+        </div>
+        <div id="wallet-info">
+          <div class="wallet-row">
+            <span class="wallet-row-label">ADDRESS</span>
+            <span class="wallet-row-val cyan" id="display-addr">—</span>
+          </div>
+          <div class="wallet-row">
+            <span class="wallet-row-label" data-i18n="lbl_status">STATUS</span>
+            <span class="wallet-row-val green" data-i18n="lbl_connected">✓ 연결됨</span>
+          </div>
+          <div class="wallet-row">
+            <span class="wallet-row-label" data-i18n="lbl_my_badges">내 배지</span>
+            <span class="wallet-row-val" id="my-badge-count">0</span>
+          </div>
+          <div class="wallet-row">
+            <span class="wallet-row-label">POINTS</span>
+            <span class="wallet-row-val cyan" id="my-points">0 PTS</span>
+          </div>
+          <button class="btn-claim" id="btn-claim" onclick="claimBadge()" data-i18n="btn_claim">✦ 테스트넷 참여 배지 발급</button>
+        </div>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item"><span class="stat-num" id="stat-members">0</span><div class="stat-label" data-i18n="stat_members">참여 홀더</div></div>
+      <div class="stat-item"><span class="stat-num" id="stat-badges">0</span><div class="stat-label" data-i18n="stat_badges">발급된 배지</div></div>
+      <div class="stat-item"><span class="stat-num">2M+</span><div class="stat-label" data-i18n="stat_txs">테스트넷 트랜잭션</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ BADGES ══════════ -->
+<div id="tab-badges" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="badges_title">// 배지 컬렉션</div>
+      <div class="section-sub" data-i18n="badges_sub">활동을 통해 배지를 획득하세요</div>
+    </div>
+    <div class="badges-grid" id="badges-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════ RANKING ══════════ -->
+<div id="tab-ranking" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="ranking_title">// 리더보드</div>
+      <div class="section-sub" data-i18n="ranking_sub">테스트넷 기여도 순위</div>
+    </div>
+    <div class="leaderboard">
+      <div class="lb-header">
+        <div>#</div>
+        <div data-i18n="lb_addr">주소</div>
+        <div data-i18n="lb_badges">배지</div>
+        <div data-i18n="lb_level">등급</div>
+        <div style="text-align:right" data-i18n="lb_points">포인트</div>
+      </div>
+      <div id="leaderboard-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ QUIZ ══════════ -->
+<div id="tab-quiz" class="tab-panel">
+  <div class="container">
+    <div class="quiz-wrap">
+      <div class="quiz-start" id="quiz-start">
+        <span class="quiz-start-icon">🧠</span>
+        <h2 data-i18n="quiz_title">Locus Chain 퀴즈</h2>
+        <p data-i18n="quiz_desc">테스트넷과 Locus Chain의 기술에 대해 얼마나 알고 있나요?<br>10문제로 지식을 확인하고 포인트를 획득하세요.</p>
+        <div class="quiz-info-row">
+          <div class="quiz-info-item"><span class="quiz-info-num">10</span><div class="quiz-info-label" data-i18n="quiz_questions">문제 수</div></div>
+          <div class="quiz-info-item"><span class="quiz-info-num">20s</span><div class="quiz-info-label" data-i18n="quiz_time">문제당 시간</div></div>
+          <div class="quiz-info-item"><span class="quiz-info-num">500</span><div class="quiz-info-label" data-i18n="quiz_max_pts">만점 PTS</div></div>
+        </div>
+        <button class="btn-primary" onclick="startQuiz()" data-i18n="quiz_start_btn">퀴즈 시작</button>
+      </div>
+      <div class="quiz-game" id="quiz-game">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress" style="width:10%"></div></div>
+        <div class="quiz-meta">
+          <span class="quiz-qnum" id="quiz-qnum"></span>
+          <span class="quiz-timer" id="quiz-timer">20</span>
+        </div>
+        <div class="quiz-question" id="quiz-question"></div>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-explanation" id="quiz-explanation"></div>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()" data-i18n="quiz_next">다음 문제 →</button>
+      </div>
+      <div class="quiz-result" id="quiz-result">
+        <div class="result-circle"><span class="result-score-big" id="result-score">0/10</span></div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-sub" id="result-sub"></div>
+        <div class="result-rewards">
+          <div class="reward-row"><span class="reward-label" data-i18n="rr_correct">정답 수</span><span class="reward-val" id="rr-correct">0</span></div>
+          <div class="reward-row"><span class="reward-label" data-i18n="rr_bonus">보너스 (빠른 응답)</span><span class="reward-val" id="rr-bonus">+0 PTS</span></div>
+          <div class="reward-row"><span class="reward-label" data-i18n="rr_pts">획득 포인트</span><span class="reward-val pts" id="rr-pts">+0 PTS</span></div>
+          <div class="reward-row"><span class="reward-label" data-i18n="rr_badge">퀴즈 배지</span><span class="reward-val" id="rr-badge">—</span></div>
+        </div>
+        <div class="result-btns">
+          <button class="btn-retry" onclick="resetQuiz()" data-i18n="btn_retry">다시 도전</button>
+          <button class="btn-share" onclick="shareResult()" data-i18n="btn_share">결과 공유</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PREDICT ══════════ -->
+<div id="tab-predict" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="predict_title">// 예측 게임</div>
+      <div class="section-sub" data-i18n="predict_sub">테스트넷 결과를 예측하고 포인트를 얻으세요</div>
+    </div>
+    <div class="predict-header">
+      <div class="predict-header-left">
+        <h3 data-i18n="predict_pool_title">이번 주 예측 풀</h3>
+        <p data-i18n="predict_pool_desc">정답자에게 포인트 배분</p>
+      </div>
+      <div>
+        <span class="predict-pool-num" id="predict-pool-pts">2,400</span>
+        <div class="predict-pool-label">PTS POOL</div>
+      </div>
+    </div>
+    <div class="predict-cards" id="predict-cards"></div>
+  </div>
+</div>
+
+<!-- ══════════ TX ══════════ -->
+<div id="tab-tx" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="tx_title">// 트랜잭션 경쟁</div>
+      <div class="section-sub" data-i18n="tx_sub">이번 주 가장 많은 트랜잭션을 발생시킨 홀더를 찾습니다</div>
+    </div>
+    <div class="tx-board">
+      <div class="tx-board-header">
+        <span class="tx-board-title" data-i18n="tx_board_title">// 이번 주 순위</span>
+        <span class="tx-period" id="tx-period">WEEK 1</span>
+      </div>
+      <div id="tx-board-body"></div>
+    </div>
+    <div class="tx-submit-card">
+      <div class="tx-submit-title" data-i18n="tx_submit_title">// 내 TX 수 등록</div>
+      <div class="tx-input-row">
+        <input class="tx-input" id="tx-addr-input" data-i18n-ph="tx_ph_addr" placeholder="지갑 주소 (0x...)">
+        <input class="tx-input" id="tx-count-input" data-i18n-ph="tx_ph_count" placeholder="TX 수" style="max-width:120px" type="number" min="0">
+        <button class="tx-submit-btn" onclick="submitTx()" data-i18n="tx_submit_btn">등록</button>
+      </div>
+      <p class="tx-note" data-i18n="tx_note">⚠ 테스트넷 탐험기 기준 실제 수치만 입력해주세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ BOARD ══════════ -->
+<div id="tab-board" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="board_title">// 홀더 게시판</div>
+      <div class="section-sub" data-i18n="board_sub">지갑 연결 후 이용 가능</div>
+    </div>
+    <div class="board-locked" id="board-locked">
+      <span class="board-lock-icon">🔒</span>
+      <div class="board-lock-title" data-i18n="board_lock_title">홀더 전용 공간</div>
+      <p class="board-lock-desc" data-i18n="board_lock_desc">Locus Wallet을 연결하면 홀더 전용 게시판을 이용할 수 있습니다.</p>
+    </div>
+    <div class="board-posts" id="board-posts">
+      <div class="post-write">
+        <input class="post-input" id="post-input" data-i18n-ph="board_ph" placeholder="테스트넷 경험을 공유해보세요..." maxlength="120">
+        <button class="post-submit" onclick="submitPost()" data-i18n="board_submit">게시</button>
+      </div>
+      <div id="post-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PRICE ══════════ -->
+<div id="tab-price" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="price_title">// LOCUS 시세</div>
+      <div class="section-sub" data-i18n="price_sub">CoinGecko 기준 실시간 가격 정보</div>
+    </div>
+
+    <!-- 메인 가격 카드 -->
+    <div class="price-main-card">
+      <div class="price-main-left">
+        <div class="price-symbol-row">
+          <div class="price-hex">⬡</div>
+          <div>
+            <div class="price-name">Locus Chain</div>
+            <div class="price-ticker">LOCUS / USD</div>
+          </div>
+        </div>
+        <div class="price-big" id="price-usd">—</div>
+        <div class="price-change" id="price-change">—</div>
+      </div>
+      <div class="price-main-right">
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_mktcap">시가총액</span><span class="price-stat-val" id="price-mktcap">—</span></div>
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_vol">24h 거래량</span><span class="price-stat-val" id="price-vol">—</span></div>
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_high">24h 고가</span><span class="price-stat-val green" id="price-high">—</span></div>
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_low">24h 저가</span><span class="price-stat-val red" id="price-low">—</span></div>
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_supply">유통량</span><span class="price-stat-val" id="price-supply">—</span></div>
+        <div class="price-stat-row"><span class="price-stat-label" data-i18n="price_ath">ATH</span><span class="price-stat-val" id="price-ath">—</span></div>
+      </div>
+    </div>
+
+    <!-- 미니 차트 (7일 가격 바) -->
+    <div class="price-chart-card">
+      <div class="price-chart-title" data-i18n="price_chart">7일 가격 추이</div>
+      <div class="price-bars" id="price-bars"></div>
+      <div class="price-chart-labels" id="price-chart-labels"></div>
+    </div>
+
+    <!-- 링크 -->
+    <div class="price-links">
+      <a href="https://coinmarketcap.com/currencies/locus-chain/" target="_blank" class="price-link-btn">CoinMarketCap ↗</a>
+      <a href="https://www.coingecko.com/en/coins/locus-chain" target="_blank" class="price-link-btn">CoinGecko ↗</a>
+      <a href="https://www.kucoin.com/trade/LOCUS-USDT" target="_blank" class="price-link-btn">KuCoin ↗</a>
+    </div>
+    <div class="price-update-note" id="price-update-note" data-i18n="price_loading">가격 불러오는 중...</div>
+  </div>
+</div>
+
+<!-- ══════════ PUZZLE ══════════ -->
+<div id="tab-puzzle" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title" data-i18n="puzzle_title">// 커뮤니티 퍼즐</div>
+      <div class="section-sub" data-i18n="puzzle_sub">홀더들이 함께 완성하는 Locus Chain 로고</div>
+    </div>
+
+    <!-- 진행률 바 -->
+    <div class="puzzle-progress-wrap">
+      <div class="puzzle-progress-info">
+        <span data-i18n="puzzle_progress">완성도</span>
+        <span class="puzzle-pct" id="puzzle-pct">0%</span>
+      </div>
+      <div class="puzzle-progress-track">
+        <div class="puzzle-progress-fill" id="puzzle-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="puzzle-contributors">
+        <span id="puzzle-contributors-count">0</span> <span data-i18n="puzzle_contributors">명이 참여중</span>
+      </div>
+    </div>
+
+    <!-- 컨트롤 -->
+    <div class="puzzle-controls">
+      <div class="puzzle-color-picker">
+        <span data-i18n="puzzle_color">색상:</span>
+        <div class="color-swatches" id="color-swatches"></div>
+      </div>
+      <div class="puzzle-tools">
+        <button class="puzzle-tool-btn active" id="tool-paint" onclick="setTool('paint')" data-i18n="puzzle_tool_paint">🎨 칠하기</button>
+        <button class="puzzle-tool-btn" id="tool-erase" onclick="setTool('erase')" data-i18n="puzzle_tool_erase">⬜ 지우기</button>
+      </div>
+      <button class="puzzle-reset-btn" onclick="resetMyContribution()" data-i18n="puzzle_undo">내 칠한 것 되돌리기</button>
+    </div>
+
+    <!-- 캔버스 -->
+    <div class="puzzle-canvas-wrap">
+      <div class="puzzle-hint" data-i18n="puzzle_hint">셀을 클릭하거나 드래그해서 색을 채우세요</div>
+      <canvas id="puzzle-canvas" width="560" height="560"></canvas>
+      <canvas id="puzzle-overlay" width="560" height="560" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+    </div>
+
+    <!-- 범례 & 이벤트 -->
+    <div class="puzzle-legend-card">
+      <div class="puzzle-legend-title" data-i18n="puzzle_legend_title">🎯 이벤트 달성 현황</div>
+      <div class="puzzle-milestones" id="puzzle-milestones"></div>
+    </div>
+
+    <!-- 최근 기여자 -->
+    <div class="puzzle-contributors-card">
+      <div class="puzzle-contributors-title" data-i18n="puzzle_recent_title">최근 참여자</div>
+      <div class="puzzle-contributors-list" id="puzzle-contributors-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<style>
+/* ══════════════════════════════
+   PRICE STYLES
+══════════════════════════════ */
+.price-main-card{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.price-main-left,.price-main-right{background:var(--surface);padding:28px}
+.price-symbol-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.price-hex{font-size:36px;color:var(--accent);line-height:1}
+.price-name{font-family:var(--mono);font-size:16px;font-weight:700}
+.price-ticker{font-size:12px;color:var(--text2);margin-top:2px;font-family:var(--mono)}
+.price-big{font-family:var(--mono);font-size:42px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:10px}
+.price-change{font-family:var(--mono);font-size:15px;font-weight:700}
+.price-change.up{color:var(--accent3)}
+.price-change.down{color:var(--warn)}
+.price-stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(30,42,64,.5)}
+.price-stat-row:last-child{border-bottom:none}
+.price-stat-label{font-size:13px;color:var(--text2)}
+.price-stat-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}
+.price-stat-val.green{color:var(--accent3)}
+.price-stat-val.red{color:var(--warn)}
+.price-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.price-chart-title{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--text2);margin-bottom:20px;text-transform:uppercase}
+.price-bars{display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:8px}
+.price-bar-item{flex:1;border-radius:4px 4px 0 0;transition:all .3s ease;cursor:pointer;position:relative;min-height:4px}
+.price-bar-item:hover{filter:brightness(1.3)}
+.price-bar-item .bar-tip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-family:var(--mono);font-size:10px;white-space:nowrap;display:none;z-index:10}
+.price-bar-item:hover .bar-tip{display:block}
+.price-chart-labels{display:flex;gap:4px}
+.price-chart-label{flex:1;font-family:var(--mono);font-size:9px;color:var(--text3);text-align:center}
+.price-links{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.price-link-btn{padding:9px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--mono);font-size:12px;color:var(--text2);text-decoration:none;transition:all .2s}
+.price-link-btn:hover{border-color:rgba(0,212,255,.4);color:var(--accent)}
+.price-update-note{font-family:var(--mono);font-size:11px;color:var(--text3)}
+@media(max-width:600px){.price-main-card{grid-template-columns:1fr}.price-big{font-size:32px}}
+
+/* ══════════════════════════════
+   PUZZLE STYLES
+══════════════════════════════ */
+.puzzle-progress-wrap{margin-bottom:22px}
+.puzzle-progress-info{display:flex;justify-content:space-between;margin-bottom:8px}
+.puzzle-pct{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)}
+.puzzle-progress-track{height:8px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:6px}
+.puzzle-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:100px;transition:width .6s ease}
+.puzzle-contributors{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.puzzle-controls{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)}
+.puzzle-color-picker{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+.color-swatches{display:flex;gap:6px;flex-wrap:wrap}
+.color-swatch{width:24px;height:24px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.color-swatch.active{border-color:#fff;transform:scale(1.2)}
+.puzzle-tools{display:flex;gap:6px}
+.puzzle-tool-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .18s}
+.puzzle-tool-btn.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--accent)}
+.puzzle-reset-btn{margin-left:auto;background:none;border:1px solid rgba(255,107,53,.3);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--warn);cursor:pointer;transition:all .18s}
+.puzzle-reset-btn:hover{background:rgba(255,107,53,.08)}
+.puzzle-canvas-wrap{position:relative;margin-bottom:20px;display:flex;flex-direction:column;align-items:center}
+.puzzle-hint{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:10px;letter-spacing:.05em}
+#puzzle-canvas{border:1px solid var(--border);border-radius:12px;cursor:crosshair;max-width:100%;touch-action:none;display:block}
+.puzzle-legend-card,.puzzle-contributors-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px}
+.puzzle-legend-title,.puzzle-contributors-title{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:16px}
+.puzzle-milestones{display:flex;flex-direction:column;gap:10px}
+.milestone-row{display:flex;align-items:center;gap:12px}
+.milestone-icon{font-size:18px;width:28px;text-align:center}
+.milestone-info{flex:1}
+.milestone-label{font-size:13px;font-weight:500;margin-bottom:2px}
+.milestone-sub{font-size:12px;color:var(--text2)}
+.milestone-status{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:100px}
+.milestone-status.done{background:rgba(0,255,157,.1);color:var(--accent3);border:1px solid rgba(0,255,157,.3)}
+.milestone-status.todo{background:rgba(255,255,255,.03);color:var(--text3);border:1px solid var(--border)}
+.puzzle-contributors-list{display:flex;flex-direction:column;gap:8px}
+.contributor-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(30,42,64,.5)}
+.contributor-row:last-child{border-bottom:none}
+.contributor-addr{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.contributor-cells{font-size:12px;color:var(--text2)}
+.contributor-time{font-family:var(--mono);font-size:11px;color:var(--text3)}
+</style>
+
+<script>
+/* ══════════════════════════════════
+   다국어 텍스트
+══════════════════════════════════ */
+const I18N = {
+  ko: {
+    nav_testnet:'TESTNET V2 LIVE',
+    tab_home:'홈', tab_badges:'배지', tab_ranking:'랭킹',
+    tab_quiz:'퀴즈', tab_predict:'예측', tab_tx:'TX 경쟁', tab_board:'게시판',
+    hero_tag:'✦ Locus Chain Testnet V2',
+    hero_sub:'테스트넷 참여자들의 공간. 지갑을 연결하고 활동을 인증받으세요.',
+    wallet_connect_title:'// 지갑 연결',
+    btn_connect:'⬡ Locus Wallet 연결',
+    connect_note:'Locus Wallet 브라우저 확장이 필요합니다',
+    toast_no_wallet:'Locus Wallet 확장 프로그램이 감지되지 않습니다. 설치 후 다시 시도해주세요.',
+    wallet_install_guide:'Locus Wallet을 설치하려면 공식 사이트를 방문해주세요.',
+    lbl_status:'STATUS', lbl_connected:'✓ 연결됨',
+    lbl_my_badges:'내 배지',
+    btn_claim:'✦ 테스트넷 참여 배지 발급',
+    btn_claim_done:'✓ Genesis 배지 보유 중',
+    stat_members:'참여 홀더', stat_badges:'발급된 배지', stat_txs:'테스트넷 트랜잭션',
+    badges_title:'// 배지 컬렉션', badges_sub:'활동을 통해 배지를 획득하세요',
+    badge_earned:'✓ 획득', badge_locked_prefix:'+',
+    ranking_title:'// 리더보드', ranking_sub:'테스트넷 기여도 순위',
+    lb_addr:'주소', lb_badges:'배지', lb_level:'등급', lb_points:'포인트',
+    quiz_title:'Locus Chain 퀴즈',
+    quiz_desc:'테스트넷과 Locus Chain의 기술에 대해 얼마나 알고 있나요?\n10문제로 지식을 확인하고 포인트를 획득하세요.',
+    quiz_questions:'문제 수', quiz_time:'문제당 시간', quiz_max_pts:'만점 PTS',
+    quiz_start_btn:'퀴즈 시작', quiz_next:'다음 문제 →',
+    quiz_qnum:'문제 {cur} / {total}',
+    quiz_timeout:'⏱ 시간 초과!',
+    quiz_correct:'✓ 정답!', quiz_wrong:'✗ 오답',
+    rr_correct:'정답 수', rr_bonus:'보너스 (빠른 응답)', rr_pts:'획득 포인트', rr_badge:'퀴즈 배지',
+    btn_retry:'다시 도전', btn_share:'결과 공유',
+    result_titles:['아직 갈 길이 멀어요','기초는 알고 있어요','꽤 잘 아시네요!','거의 다 맞혔어요!','완벽한 마스터!'],
+    result_subs:['다시 도전해보세요','Locus를 더 공부해봐요','훌륭합니다!','대단해요!','당신은 Locus 전문가!'],
+    predict_title:'// 예측 게임', predict_sub:'테스트넷 결과를 예측하고 포인트를 얻으세요',
+    predict_pool_title:'이번 주 예측 풀', predict_pool_desc:'정답자에게 포인트 배분',
+    predict_open:'진행 중', predict_ended:'종료',
+    predict_result_yes:'결과: ✓ YES 정답', predict_result_no:'결과: ✗ NO 정답',
+    tx_title:'// 트랜잭션 경쟁', tx_sub:'이번 주 가장 많은 트랜잭션을 발생시킨 홀더를 찾습니다',
+    tx_board_title:'// 이번 주 순위', tx_submit_title:'// 내 TX 수 등록',
+    tx_ph_addr:'지갑 주소 (0x...)', tx_ph_count:'TX 수', tx_submit_btn:'등록',
+    tx_note:'⚠ 테스트넷 탐험기 기준 실제 수치만 입력해주세요.',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 퍼즐',
+    price_title:'// LOCUS 시세', price_sub:'CoinGecko 기준 실시간 가격 정보',
+    price_mktcap:'시가총액', price_vol:'24h 거래량', price_high:'24h 고가', price_low:'24h 저가',
+    price_supply:'유통량', price_ath:'역대 최고가', price_chart:'7일 가격 추이',
+    price_loading:'가격 불러오는 중...', price_error:'가격 정보를 가져올 수 없습니다',
+    price_updated:'마지막 업데이트: ',
+    puzzle_title:'// 커뮤니티 퍼즐', puzzle_sub:'홀더들이 함께 완성하는 Locus Chain 로고',
+    puzzle_progress:'완성도', puzzle_contributors:'명이 참여중',
+    puzzle_color:'색상:', puzzle_tool_paint:'🎨 칠하기', puzzle_tool_erase:'⬜ 지우기',
+    puzzle_undo:'내 칠한 것 되돌리기',
+    puzzle_hint:'셀을 클릭하거나 드래그해서 색을 채우세요',
+    puzzle_legend_title:'🎯 이벤트 달성 현황', puzzle_recent_title:'최근 참여자',
+    puzzle_toast_paint:'✓ 칠했습니다! +5 PTS',
+    puzzle_toast_reset:'내 칠한 것을 되돌렸습니다',
+    milestone_labels:['첫 홀더 참여','퍼즐 25% 완성','퍼즐 50% 완성','퍼즐 100% 완성'],
+    milestone_subs:['첫 번째 홀더가 참여!','전체의 1/4 완성','절반 완성!','모두가 함께 완성한 작품!'],
+    board_title:'// 홀더 게시판', board_sub:'지갑 연결 후 이용 가능',
+    board_lock_title:'홀더 전용 공간',
+    board_lock_desc:'Locus Wallet을 연결하면 홀더 전용 게시판을 이용할 수 있습니다.',
+    board_ph:'테스트넷 경험을 공유해보세요...', board_submit:'게시',
+    toast_connected:'✓ 지갑 연결 완료!',
+
+    toast_genesis:'🎉 Genesis Node 배지 획득! +500 PTS',
+    toast_educator:'🎉 Educator 배지 획득! +150 PTS',
+    toast_quiz_master:'🎉 Quiz Master 배지 획득!',
+    toast_voted:'✓ 예측 참여 완료! +30 PTS',
+    toast_tx_ok:'✓ TX 수 등록 완료! +20 PTS',
+    toast_tx_err_addr:'지갑 주소를 입력해주세요',
+    toast_tx_err_count:'TX 수를 올바르게 입력해주세요',
+    toast_copied:'📋 공유 텍스트가 복사됐어요!',
+    share_text:'Locus Chain 퀴즈 {score}/10 달성! 테스트넷 커뮤니티에서 함께해요 🔥',
+    badge_names:['Genesis Node','Validator','Explorer','TX Master','Educator','OG Holder'],
+    badge_descs:['테스트넷 V2 최초 참여자','노드를 직접 운영한 참여자','테스트넷 탐험기를 10회 이상 조회','100개 이상의 트랜잭션 발생','커뮤니티 게시글 5개 이상 작성','테스트넷 V1부터 참여한 홀더'],
+    predict_qs:[
+      '이번 주 테스트넷 TPS가 1,500을 초과할까요?',
+      '다음 V2 업데이트가 이번 달 안에 배포될까요?',
+      '이번 주 신규 노드 참여자가 100명을 넘을까요?',
+      '다음 달 메인넷 일정이 공식 발표될까요?',
+    ],
+    me_tag:'나',
+    just_now:'방금 전',
+    post_previews:['랩톱에서도 1분 만에 동기화 완료됐습니다. 성능 이슈 전혀 없어요.','TX Master 배지 받으려면 어떻게 하나요?','처음 참여하시는 분들을 위해 간단히 정리해봤습니다...'],
+    post_titles:['노드 운영 2주차 후기','트랜잭션 100개 달성!','V2 테스트넷 참여 방법 정리'],
+    hours_ago:'시간 전',
+    day_ago:'1일 전',
+  },
+
+  en: {
+    nav_testnet:'TESTNET V2 LIVE',
+    tab_home:'Home', tab_badges:'Badges', tab_ranking:'Ranking',
+    tab_quiz:'Quiz', tab_predict:'Predict', tab_tx:'TX Race', tab_board:'Board',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 Puzzle',
+    price_title:'// LOCUS Price', price_sub:'Real-time data via CoinGecko',
+    price_mktcap:'Market Cap', price_vol:'24h Volume', price_high:'24h High', price_low:'24h Low',
+    price_supply:'Circulating Supply', price_ath:'All-Time High', price_chart:'7-Day Price Trend',
+    price_loading:'Loading price data...', price_error:'Unable to fetch price data',
+    price_updated:'Last updated: ',
+    puzzle_title:'// Community Puzzle', puzzle_sub:'Complete the Locus Chain logo together',
+    puzzle_progress:'Completion', puzzle_contributors:'participants',
+    puzzle_color:'Color:', puzzle_tool_paint:'🎨 Paint', puzzle_tool_erase:'⬜ Erase',
+    puzzle_undo:'Undo My Contribution',
+    puzzle_hint:'Click or drag cells to fill in color',
+    puzzle_legend_title:'🎯 Event Milestones', puzzle_recent_title:'Recent Contributors',
+    puzzle_toast_paint:'✓ Painted! +5 PTS',
+    puzzle_toast_reset:'Your contribution has been undone',
+    milestone_labels:['First Holder','25% Complete','50% Complete','100% Complete'],
+    milestone_subs:['First holder joined!','One quarter done!','Halfway there!','A masterpiece by the community!'],
+    hero_tag:'✦ Locus Chain Testnet V2',
+    hero_sub:'A space for testnet participants. Connect your wallet and get certified.',
+    wallet_connect_title:'// Connect Wallet',
+    btn_connect:'⬡ Connect Locus Wallet',
+    connect_note:'Requires the Locus Wallet browser extension',
+    toast_no_wallet:'Locus Wallet extension not detected. Please install it and try again.',
+    wallet_install_guide:'Visit the official site to install Locus Wallet.',
+    lbl_status:'STATUS', lbl_connected:'✓ Connected',
+    lbl_my_badges:'My Badges',
+    btn_claim:'✦ Claim Testnet Badge',
+    btn_claim_done:'✓ Genesis Badge Owned',
+    stat_members:'Participants', stat_badges:'Badges Issued', stat_txs:'Testnet Transactions',
+    badges_title:'// Badge Collection', badges_sub:'Earn badges through your activities',
+    badge_earned:'✓ Earned', badge_locked_prefix:'+',
+    ranking_title:'// Leaderboard', ranking_sub:'Ranking by testnet contribution',
+    lb_addr:'Address', lb_badges:'Badges', lb_level:'Level', lb_points:'Points',
+    quiz_title:'Locus Chain Quiz',
+    quiz_desc:'How well do you know Locus Chain and its testnet?\nAnswer 10 questions and earn points.',
+    quiz_questions:'Questions', quiz_time:'Time / Question', quiz_max_pts:'Max PTS',
+    quiz_start_btn:'Start Quiz', quiz_next:'Next Question →',
+    quiz_qnum:'Q {cur} / {total}',
+    quiz_timeout:'⏱ Time\'s up!',
+    quiz_correct:'✓ Correct!', quiz_wrong:'✗ Wrong',
+    rr_correct:'Correct', rr_bonus:'Bonus (fast answer)', rr_pts:'Points Earned', rr_badge:'Quiz Badge',
+    btn_retry:'Try Again', btn_share:'Share Result',
+    result_titles:['Keep studying!','You know the basics','Pretty good!','Almost perfect!','Perfect Master!'],
+    result_subs:['Try again!','Learn more about Locus','Well done!','Amazing!','You\'re a Locus expert!'],
+    predict_title:'// Prediction Game', predict_sub:'Predict testnet results and earn points',
+    predict_pool_title:'This Week\'s Pool', predict_pool_desc:'Points shared among correct predictors',
+    predict_open:'Open', predict_ended:'Ended',
+    predict_result_yes:'Result: ✓ YES', predict_result_no:'Result: ✗ NO',
+    tx_title:'// TX Race', tx_sub:'Find the holder with the most transactions this week',
+    tx_board_title:'// Weekly Ranking', tx_submit_title:'// Submit My TX Count',
+    tx_ph_addr:'Wallet address (0x...)', tx_ph_count:'TX count', tx_submit_btn:'Submit',
+    tx_note:'⚠ Submit only verified figures from the testnet explorer.',
+    board_title:'// Holder Board', board_sub:'Available after wallet connection',
+    board_lock_title:'Holder-only Space',
+    board_lock_desc:'Connect your Locus Wallet to access the holder-exclusive board.',
+    board_ph:'Share your testnet experience...', board_submit:'Post',
+    toast_connected:'✓ Wallet connected!',
+
+    toast_genesis:'🎉 Genesis Node badge earned! +500 PTS',
+    toast_educator:'🎉 Educator badge earned! +150 PTS',
+    toast_quiz_master:'🎉 Quiz Master badge earned!',
+    toast_voted:'✓ Prediction submitted! +30 PTS',
+    toast_tx_ok:'✓ TX count registered! +20 PTS',
+    toast_tx_err_addr:'Please enter your wallet address',
+    toast_tx_err_count:'Please enter a valid TX count',
+    toast_copied:'📋 Share text copied!',
+    share_text:'Scored {score}/10 on the Locus Chain Quiz! Join the testnet community 🔥',
+    badge_names:['Genesis Node','Validator','Explorer','TX Master','Educator','OG Holder'],
+    badge_descs:['First Testnet V2 participant','Operated a node directly','Viewed the testnet explorer 10+ times','Generated 100+ transactions','Posted 5+ community messages','Participated since Testnet V1'],
+    predict_qs:[
+      'Will testnet TPS exceed 1,500 this week?',
+      'Will the next V2 update ship this month?',
+      'Will 100+ new nodes join this week?',
+      'Will the mainnet timeline be officially announced next month?',
+    ],
+    me_tag:'Me',
+    just_now:'just now',
+    post_previews:['Full sync in under 1 minute on a laptop. Zero performance impact.','How do I get the TX Master badge?','A quick guide for newcomers...'],
+    post_titles:['Week 2 Node Operation Review','100 Transactions Reached!','How to Participate in V2 Testnet'],
+    hours_ago:'hours ago',
+    day_ago:'1 day ago',
+  },
+
+  ja: {
+    nav_testnet:'TESTNET V2 稼働中',
+    tab_home:'ホーム', tab_badges:'バッジ', tab_ranking:'ランキング',
+    tab_quiz:'クイズ', tab_predict:'予測', tab_tx:'TX競争', tab_board:'掲示板',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 パズル',
+    price_title:'// LOCUS 価格', price_sub:'CoinGecko リアルタイムデータ',
+    price_mktcap:'時価総額', price_vol:'24h 取引量', price_high:'24h 高値', price_low:'24h 安値',
+    price_supply:'流通量', price_ath:'過去最高値', price_chart:'7日間の価格推移',
+    price_loading:'価格を読み込み中...', price_error:'価格データを取得できません',
+    price_updated:'最終更新: ',
+    puzzle_title:'// コミュニティパズル', puzzle_sub:'ホルダーが一緒にLocusロゴを完成させよう',
+    puzzle_progress:'完成度', puzzle_contributors:'名が参加中',
+    puzzle_color:'色:', puzzle_tool_paint:'🎨 塗る', puzzle_tool_erase:'⬜ 消す',
+    puzzle_undo:'自分の塗りを元に戻す',
+    puzzle_hint:'セルをクリック・ドラッグして色を塗りましょう',
+    puzzle_legend_title:'🎯 イベント達成状況', puzzle_recent_title:'最近の参加者',
+    puzzle_toast_paint:'✓ 塗りました！ +5 PTS',
+    puzzle_toast_reset:'自分の貢献を元に戻しました',
+    milestone_labels:['最初のホルダー参加','25%完成','50%完成','100%完成'],
+    milestone_subs:['最初のホルダーが参加！','全体の1/4完成','半分完成！','みんなで完成した作品！'],
+    hero_tag:'✦ Locus Chain テストネット V2',
+    hero_sub:'テストネット参加者のための場所。ウォレットを接続して活動を認証しましょう。',
+    wallet_connect_title:'// ウォレット接続',
+    btn_connect:'⬡ Locus Walletを接続',
+    connect_note:'Locus Walletブラウザ拡張が必要です',
+    toast_no_wallet:'Locus Wallet拡張機能が検出されません。インストール後に再試行してください。',
+    wallet_install_guide:'Locus Walletのインストールは公式サイトをご覧ください。',
+    lbl_status:'ステータス', lbl_connected:'✓ 接続済み',
+    lbl_my_badges:'マイバッジ',
+    btn_claim:'✦ テストネット参加バッジを取得',
+    btn_claim_done:'✓ Genesisバッジ取得済み',
+    stat_members:'参加ホルダー', stat_badges:'発行バッジ数', stat_txs:'テストネットTX',
+    badges_title:'// バッジコレクション', badges_sub:'活動を通じてバッジを獲得しよう',
+    badge_earned:'✓ 取得済み', badge_locked_prefix:'+',
+    ranking_title:'// リーダーボード', ranking_sub:'テストネット貢献度ランキング',
+    lb_addr:'アドレス', lb_badges:'バッジ', lb_level:'ランク', lb_points:'ポイント',
+    quiz_title:'Locus Chainクイズ',
+    quiz_desc:'Locus Chainとテストネットについてどれだけ知っていますか？\n10問に答えてポイントを獲得しましょう。',
+    quiz_questions:'問題数', quiz_time:'問題ごとの制限時間', quiz_max_pts:'満点PTS',
+    quiz_start_btn:'クイズ開始', quiz_next:'次の問題 →',
+    quiz_qnum:'問題 {cur} / {total}',
+    quiz_timeout:'⏱ 時間切れ！',
+    quiz_correct:'✓ 正解！', quiz_wrong:'✗ 不正解',
+    rr_correct:'正解数', rr_bonus:'ボーナス（早答）', rr_pts:'獲得ポイント', rr_badge:'クイズバッジ',
+    btn_retry:'もう一度挑戦', btn_share:'結果をシェア',
+    result_titles:['まだ修行が必要です','基本はわかっています','なかなか良いですね！','ほぼ完璧です！','完璧なマスター！'],
+    result_subs:['再挑戦してみましょう','もっとLocusを学ぼう','素晴らしい！','すごい！','あなたはLocus専門家！'],
+    predict_title:'// 予測ゲーム', predict_sub:'テストネットの結果を予測してポイントを獲得しよう',
+    predict_pool_title:'今週の予測プール', predict_pool_desc:'正解者にポイントを分配',
+    predict_open:'受付中', predict_ended:'終了',
+    predict_result_yes:'結果: ✓ YES 正解', predict_result_no:'結果: ✗ NO 正解',
+    tx_title:'// TX競争', tx_sub:'今週最も多くのトランザクションを発生させたホルダーを探します',
+    tx_board_title:'// 今週のランキング', tx_submit_title:'// 自分のTX数を登録',
+    tx_ph_addr:'ウォレットアドレス (0x...)', tx_ph_count:'TX数', tx_submit_btn:'登録',
+    tx_note:'⚠ テストネットエクスプローラーの実際の数値のみ入力してください。',
+    board_title:'// ホルダー掲示板', board_sub:'ウォレット接続後に利用可能',
+    board_lock_title:'ホルダー専用スペース',
+    board_lock_desc:'Locus Walletを接続すると、ホルダー専用掲示板を利用できます。',
+    board_ph:'テストネットの経験をシェアしましょう...', board_submit:'投稿',
+    toast_connected:'✓ ウォレット接続完了！',
+
+    toast_genesis:'🎉 Genesis Nodeバッジ取得！ +500 PTS',
+    toast_educator:'🎉 Educatorバッジ取得！ +150 PTS',
+    toast_quiz_master:'🎉 Quiz Masterバッジ取得！',
+    toast_voted:'✓ 予測参加完了！ +30 PTS',
+    toast_tx_ok:'✓ TX数登録完了！ +20 PTS',
+    toast_tx_err_addr:'ウォレットアドレスを入力してください',
+    toast_tx_err_count:'TX数を正しく入力してください',
+    toast_copied:'📋 シェアテキストをコピーしました！',
+    share_text:'Locus Chain クイズ {score}/10達成！テストネットコミュニティに参加しよう 🔥',
+    badge_names:['Genesis Node','Validator','Explorer','TX Master','Educator','OG Holder'],
+    badge_descs:['テストネットV2の初期参加者','ノードを自ら運営した参加者','テストネットエクスプローラーを10回以上閲覧','100件以上のトランザクションを発生','コミュニティに5件以上投稿','テストネットV1から参加のホルダー'],
+    predict_qs:[
+      '今週のテストネットTPSが1,500を超えるか？',
+      '次のV2アップデートは今月中にリリースされるか？',
+      '今週新規ノード参加者が100人を超えるか？',
+      '来月メインネットのスケジュールが公式発表されるか？',
+    ],
+    me_tag:'自分',
+    just_now:'たった今',
+    post_previews:['ラップトップで1分以内に同期完了。パフォーマンスへの影響なし。','TX Masterバッジはどうやって取得するの？','初めての方向けに簡単にまとめました...'],
+    post_titles:['ノード運用2週目の感想','トランザクション100件達成！','V2テストネット参加方法まとめ'],
+    hours_ago:'時間前',
+    day_ago:'1日前',
+  }
+};
+
+/* ══════════════════════════════════
+   데이터
+══════════════════════════════════ */
+const BADGE_IDS = ['genesis','validator','explorer','txmaster','educator','og'];
+const BADGE_ICONS = ['⬡','🛡','🔭','⚡','📡','👑'];
+const BADGE_PTS = [500,1000,200,300,150,800];
+
+const PREDICTIONS_DATA = [
+  {id:'p1',status:'open',yes:68,no:32,total:247,myVote:null,reward:300},
+  {id:'p2',status:'open',yes:81,no:19,total:183,myVote:null,reward:200},
+  {id:'p3',status:'ended',yes:73,no:27,total:312,myVote:null,result:true,reward:150},
+  {id:'p4',status:'open',yes:45,no:55,total:128,myVote:null,reward:400},
+];
+
+const TX_BOARD_DATA = [
+  {addr:'0x3f...a12b',count:847,reward:'🥇 +500 PTS'},
+  {addr:'0x7c...d890',count:623,reward:'🥈 +300 PTS'},
+  {addr:'0x1a...f567',count:451,reward:'🥉 +150 PTS'},
+  {addr:'0x9e...2c34',count:298,reward:'+50 PTS'},
+  {addr:'0x5b...8901',count:187,reward:'+50 PTS'},
+];
+
+const MOCK_LEADERBOARD = [
+  {addr:'0x3f...a12b',badges:['genesis','validator','og'],points:2300,level:'Node Master'},
+  {addr:'0x7c...d890',badges:['genesis','explorer','txmaster'],points:1800,level:'Validator'},
+  {addr:'0x1a...f567',badges:['genesis','txmaster'],points:1200,level:'Explorer'},
+  {addr:'0x9e...2c34',badges:['genesis','educator'],points:850,level:'Contributor'},
+  {addr:'0x5b...8901',badges:['genesis'],points:500,level:'Participant'},
+  {addr:'0x2d...e456',badges:['genesis'],points:500,level:'Participant'},
+];
+
+const QUESTIONS = [
+  {q:{ko:"Locus Chain의 합의 알고리즘은 무엇인가요?",en:"What is Locus Chain's consensus algorithm?",ja:"Locus Chainのコンセンサスアルゴリズムは何ですか？"},
+   opts:{ko:["Proof of Work","DAG-AWTC + BFT","Delegated Proof of Stake","Proof of Authority"],en:["Proof of Work","DAG-AWTC + BFT","Delegated Proof of Stake","Proof of Authority"],ja:["Proof of Work","DAG-AWTC + BFT","Delegated Proof of Stake","Proof of Authority"]},
+   ans:1,
+   exp:{ko:"Locus Chain은 DAG 기반의 AWTC와 BFT를 결합한 독자적인 합의 알고리즘을 사용합니다.",en:"Locus Chain uses a unique consensus algorithm combining DAG-based AWTC with BFT.",ja:"Locus ChainはDAGベースのAWTCとBFTを組み合わせた独自のコンセンサスアルゴリズムを使用します。"}},
+  {q:{ko:"Locus Chain Testnet V1에서 달성한 TPS는?",en:"What TPS did Locus Chain Testnet V1 achieve?",ja:"Locus Chain Testnet V1が達成したTPSは？"},
+   opts:{ko:["100 TPS","500 TPS","1,400 TPS","10,000 TPS"],en:["100 TPS","500 TPS","1,400 TPS","10,000 TPS"],ja:["100 TPS","500 TPS","1,400 TPS","10,000 TPS"]},
+   ans:2,
+   exp:{ko:"2024년 12월 Testnet V1에서 1,400 TPS와 1,000개 이상의 노드를 기록했습니다.",en:"Testnet V1 recorded 1,400 TPS with 1,000+ nodes in December 2024.",ja:"2024年12月のTestnet V1で1,400 TPSと1,000以上のノードを記録しました。"}},
+  {q:{ko:"Testnet V2의 'Sub-epoch Eviction'의 목적은?",en:"What is the purpose of 'Sub-epoch Eviction' in Testnet V2?",ja:"Testnet V2の「Sub-epoch Eviction」の目的は？"},
+   opts:{ko:["TPS 향상","동적 샤드 보호","스마트 컨트랙트 실행","토큰 발행"],en:["Improve TPS","Dynamic shard protection","Smart contract execution","Token issuance"],ja:["TPS向上","動的シャード保護","スマートコントラクト実行","トークン発行"]},
+   ans:1,
+   exp:{ko:"악의적인 노드를 동적으로 퇴출해 샤드를 보호하는 V2의 핵심 보안 기능입니다.",en:"It dynamically evicts malicious nodes to protect shards — a core V2 security feature.",ja:"悪意のあるノードを動的に排除してシャードを保護するV2の核心セキュリティ機能です。"}},
+  {q:{ko:"'스마트폰 풀노드'를 가능하게 하는 핵심 기술은?",en:"What core technology enables 'smartphone full nodes'?",ja:"「スマートフォンフルノード」を可能にするコア技術は？"},
+   opts:{ko:["Verifiable Pruning","Sharding","Layer 2","ZK-Rollup"],en:["Verifiable Pruning","Sharding","Layer 2","ZK-Rollup"],ja:["Verifiable Pruning","Sharding","Layer 2","ZK-Rollup"]},
+   ans:0,
+   exp:{ko:"Verifiable Pruning으로 블록체인 상태 데이터를 효율적으로 압축해 스마트폰 풀노드가 가능합니다.",en:"Verifiable Pruning compresses blockchain state data efficiently, enabling full nodes on smartphones.",ja:"Verifiable Pruningでブロックチェーンの状態データを効率的に圧縮し、スマートフォンでのフルノードを実現します。"}},
+  {q:{ko:"Testnet V2에서 사용하는 통신 토폴로지는?",en:"What communication topology does Testnet V2 use?",ja:"Testnet V2が使用する通信トポロジーは？"},
+   opts:{ko:["P2P Mesh","Patricia Hypercube","Star Topology","Ring Network"],en:["P2P Mesh","Patricia Hypercube","Star Topology","Ring Network"],ja:["P2P Mesh","Patricia Hypercube","Star Topology","Ring Network"]},
+   ans:1,
+   exp:{ko:"특허 출원 중인 Patricia Hypercube 토폴로지와 개선된 Push-Pull Gossip 프로토콜을 사용합니다.",en:"Locus uses the patent-pending Patricia Hypercube topology with improved Push-Pull Gossip.",ja:"特許出願中のPatricia Hypercubeトポロジーと改良されたPush-Pull Gossipプロトコルを使用します。"}},
+  {q:{ko:"Locus Chain 노드 운영에 필요한 최소 인터넷 속도는?",en:"What is the minimum internet speed required to run a Locus Chain node?",ja:"Locus Chainノード運用に必要な最低インターネット速度は？"},
+   opts:{ko:["1 Mbps","5 Mbps","100 Mbps","1 Gbps"],en:["1 Mbps","5 Mbps","100 Mbps","1 Gbps"],ja:["1 Mbps","5 Mbps","100 Mbps","1 Gbps"]},
+   ans:1,
+   exp:{ko:"5Mbps 이상이 필요하며, 이는 아프리카 사하라 이남 모바일 인터넷으로도 충족 가능합니다.",en:"5 Mbps is required — achievable even with mobile internet in sub-Saharan Africa.",ja:"5Mbps以上が必要で、これはサハラ以南アフリカのモバイルインターネットでも達成可能です。"}},
+  {q:{ko:"VRF 기반 거버넌스의 주요 특징은?",en:"What is the main feature of VRF-based governance?",ja:"VRFベースのガバナンスの主な特徴は？"},
+   opts:{ko:["대형 고래 우선","스테이킹 비율에 비례","스테이킹 크기와 무관한 공정 참여","검증자만 참여 가능"],en:["Whale priority","Proportional to staking","Fair participation regardless of stake size","Validators only"],ja:["大口ホルダー優先","ステーキング比例","ステーキング量に関わらず公平参加","バリデーターのみ"]},
+   ans:2,
+   exp:{ko:"스테이킹 규모와 관계없이 모든 참여자에게 공정한 참여 기회를 제공합니다.",en:"All participants get a fair chance regardless of their staking size.",ja:"ステーキング量に関係なく、すべての参加者に公平な参加機会を提供します。"}},
+  {q:{ko:"Cascading BFT의 핵심 역할은?",en:"What is the key role of Cascading BFT?",ja:"Cascading BFTの主な役割は？"},
+   opts:{ko:["스마트 컨트랙트 실행","결정론적 최종성 + 미래 다중 레이어 샤딩","NFT 발행","크로스체인 브릿지"],en:["Smart contract execution","Deterministic finality + future multi-layer sharding","NFT minting","Cross-chain bridge"],ja:["スマートコントラクト実行","決定論的最終性＋将来の多層シャーディング","NFT発行","クロスチェーンブリッジ"]},
+   ans:1,
+   exp:{ko:"트랜잭션의 결정론적 최종성을 보장하고 미래 다중 레이어 샤딩 확장을 위한 기반입니다.",en:"It guarantees deterministic finality and lays the foundation for future multi-layer sharding.",ja:"トランザクションの決定論的最終性を保証し、将来の多層シャーディングの基盤となります。"}},
+  {q:{ko:"Testnet V2 Milestone에서 달성한 누적 트랜잭션 수는?",en:"How many cumulative transactions did Testnet V2 Milestone achieve?",ja:"Testnet V2 Milestoneで達成した累積トランザクション数は？"},
+   opts:{ko:["100만 건","200만 건 이상","500만 건","1,000만 건"],en:["1 million","2 million+","5 million","10 million"],ja:["100万件","200万件以上","500万件","1000万件"]},
+   ans:1,
+   exp:{ko:"Testnet V2에서 200만 건 이상의 누적 트랜잭션을 달성하는 마일스톤을 기록했습니다.",en:"Testnet V2 reached a milestone of 2 million+ cumulative transactions.",ja:"Testnet V2で200万件以上の累積トランザクションを達成するマイルストーンを記録しました。"}},
+  {q:{ko:"Locus Wallet DID의 주요 용도는?",en:"What is the main use of Locus Wallet DID?",ja:"Locus Wallet DIDの主な用途は？"},
+   opts:{ko:["토큰 스왑 전용","신원 인증 및 dApp 로그인","마이닝 보상 수령","NFT 발행 전용"],en:["Token swap only","Identity auth & dApp login","Receiving mining rewards","NFT minting only"],ja:["トークンスワップ専用","本人認証とdAppログイン","マイニング報酬受取","NFT発行専用"]},
+   ans:1,
+   exp:{ko:"중앙화된 서버 없이 블록체인 기반으로 신원을 증명하고 dApp 로그인 및 커뮤니티 인증에 활용됩니다.",en:"DID enables blockchain-based identity proof without central servers, used for dApp login and community auth.",ja:"中央サーバーなしにブロックチェーンベースで本人証明し、dAppログインやコミュニティ認証に活用されます。"}},
+];
+
+/* ══════════════════════════════════
+   앱 상태
+══════════════════════════════════ */
+let lang = localStorage.getItem('locus_lang') || 'ko';
+let connected = false, address = null;
+let myBadges = [], myPoints = 0, postCount = 0;
+let totalPts = parseInt(localStorage.getItem('locus_quiz_pts') || '0');
+let quizBadges = JSON.parse(localStorage.getItem('locus_quiz_badges') || '[]');
+
+let qState = {idx:0,score:0,bonusTotal:0,answered:false,timer:null,timeLeft:20};
+
+function t(key) { return (I18N[lang] || I18N.ko)[key] || key; }
+
+/* ══════════════════════════════════
+   언어 전환
+══════════════════════════════════ */
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('locus_lang', l);
+  document.documentElement.lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(b => { if(b.textContent.toLowerCase() === l) b.classList.add('active'); });
+
+  // data-i18n 텍스트 적용
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  // placeholder
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    const val = t(key);
+    if (val) el.placeholder = val;
+  });
+
+  // btn-claim 상태 유지
+  if (myBadges.includes('genesis')) {
+    document.getElementById('btn-claim').textContent = t('btn_claim_done');
+  }
+
+  // 동적 컴포넌트 재렌더
+  renderBadges();
+  renderLeaderboard();
+  renderPosts();
+  renderPredictions();
+  renderTxBoard();
+}
+
+/* ══════════════════════════════════
+   탭 전환
+══════════════════════════════════ */
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ══════════════════════════════════
+   지갑 연결
+══════════════════════════════════ */
+async function connectWallet() {
+  const btn = document.querySelector('.btn-connect');
+
+  // ── Locus Wallet 미설치 시 즉시 차단 ──
+  if (typeof window.locus === 'undefined') {
+    showNoWalletUI();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const accounts = await window.locus.request({method:'eth_requestAccounts'});
+    const addr = accounts[0];
+    if (!addr) throw new Error('No account returned');
+    onConnected(addr);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = t('btn_connect');
+    // 사용자가 연결 거부한 경우
+    const msg = e.code === 4001
+      ? (lang === 'ko' ? '연결을 거부했습니다.' : lang === 'ja' ? '接続を拒否しました。' : 'Connection rejected.')
+      : (e.message || 'Error');
+    showToast(msg, 'error');
+  }
+}
+
+function showNoWalletUI() {
+  const section = document.getElementById('connect-section');
+  section.innerHTML = `
+    <div style="text-align:center;padding:8px 0">
+      <div style="font-size:36px;margin-bottom:14px">🔒</div>
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--warn);margin-bottom:8px">
+        Locus Wallet ${lang==='ja'?'未検出':lang==='en'?'Not Detected':'미감지'}
+      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px">
+        ${t('toast_no_wallet')}
+      </p>
+      <a href="https://locuschain.com" target="_blank"
+        style="display:inline-block;padding:11px 24px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:var(--radius);font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:.08em">
+        ${lang==='ja'?'公式サイトへ':lang==='en'?'Go to Official Site →':'공식 사이트 방문 →'}
+      </a>
+      <p style="margin-top:12px;font-size:11px;color:var(--text3)">
+        ${lang==='ja'?'インストール後、ページを再読み込みしてください':lang==='en'?'After installing, reload this page':'설치 후 페이지를 새로고침 해주세요'}
+      </p>
+    </div>
+  `;
+}
+
+function onConnected(addr) {
+  connected = true; address = addr;
+  document.getElementById('connect-section').style.display = 'none';
+  document.getElementById('wallet-info').style.display = 'block';
+  document.getElementById('display-addr').textContent = addr;
+  document.getElementById('board-locked').style.display = 'none';
+  document.getElementById('board-posts').style.display = 'block';
+  loadUserData();
+  renderBadges(); renderLeaderboard(); renderPosts();
+  showToast(t('toast_connected'), 'success');
+}
+
+function loadUserData() {
+  const saved = localStorage.getItem('locus_' + address);
+  if (saved) { const d = JSON.parse(saved); myBadges = d.badges||[]; myPoints = d.points||0; postCount = d.postCount||0; }
+  updateWalletInfo();
+}
+
+function saveUserData() {
+  localStorage.setItem('locus_' + address, JSON.stringify({badges:myBadges,points:myPoints,postCount}));
+}
+
+function updateWalletInfo() {
+  document.getElementById('my-badge-count').textContent = myBadges.length;
+  document.getElementById('my-points').textContent = myPoints.toLocaleString() + ' PTS';
+  const claimBtn = document.getElementById('btn-claim');
+  if (myBadges.includes('genesis')) { claimBtn.textContent = t('btn_claim_done'); claimBtn.disabled = true; }
+  updateNavPts();
+}
+
+function updateNavPts() {
+  const total = myPoints + totalPts;
+  document.getElementById('nav-pts').textContent = total.toLocaleString() + ' PTS';
+}
+
+function claimBadge() {
+  if (!connected || myBadges.includes('genesis')) return;
+  myBadges.push('genesis'); myPoints += 500;
+  saveUserData(); updateWalletInfo(); renderBadges(); renderLeaderboard();
+  showToast(t('toast_genesis'), 'success');
+}
+
+/* ══════════════════════════════════
+   배지 렌더링
+══════════════════════════════════ */
+function renderBadges() {
+  const names = t('badge_names');
+  const descs = t('badge_descs');
+  document.getElementById('badges-grid').innerHTML = BADGE_IDS.map((id, i) => {
+    const earned = myBadges.includes(id);
+    return `<div class="badge-card ${earned?'earned':'locked'}">
+      <span class="badge-icon">${BADGE_ICONS[i]}</span>
+      <div class="badge-name">${names[i]}</div>
+      <div class="badge-desc">${descs[i]}</div>
+      <div class="badge-status ${earned?'earned-tag':'locked-tag'}">
+        ${earned ? t('badge_earned') : t('badge_locked_prefix') + BADGE_PTS[i] + ' PTS'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   리더보드 렌더링
+══════════════════════════════════ */
+function renderLeaderboard() {
+  let board = [...MOCK_LEADERBOARD];
+  if (connected && myPoints > 0) {
+    const ex = board.findIndex(r => r.addr === address);
+    if (ex >= 0) { board[ex].points = myPoints; board[ex].badges = myBadges; }
+    else board.push({addr:address, badges:myBadges, points:myPoints, level:'Participant', isMe:true});
+    board.sort((a,b) => b.points - a.points);
+  }
+  const rc = ['gold','silver','bronze'];
+  const rs = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard-body').innerHTML = board.map((r,i) => {
+    const isMe = r.isMe || (connected && r.addr === address);
+    const icons = r.badges.map(id => {
+      const idx = BADGE_IDS.indexOf(id);
+      return idx >= 0 ? `<span class="lb-badge-dot" title="${t('badge_names')[idx]}">${BADGE_ICONS[idx]}</span>` : '';
+    }).join('');
+    return `<div class="lb-row ${isMe?'me':''}">
+      <div class="lb-rank ${rc[i]||''}">${i<3?rs[i]:'#'+(i+1)}</div>
+      <div class="lb-addr">${r.addr}${isMe?`<span class="me-tag">${t('me_tag')}</span>`:''}</div>
+      <div class="lb-badges">${icons}</div>
+      <div class="lb-level">${r.level}</div>
+      <div class="lb-points">${r.points.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   퀴즈
+══════════════════════════════════ */
+function startQuiz() {
+  qState = {idx:0,score:0,bonusTotal:0,answered:false,timer:null,timeLeft:20};
+  document.getElementById('quiz-start').style.display = 'none';
+  document.getElementById('quiz-game').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[qState.idx];
+  const total = QUESTIONS.length;
+  const qnum = t('quiz_qnum').replace('{cur}', qState.idx+1).replace('{total}', total);
+  document.getElementById('quiz-qnum').textContent = qnum;
+  document.getElementById('quiz-progress').style.width = ((qState.idx+1)/total*100)+'%';
+  document.getElementById('quiz-question').textContent = q.q[lang] || q.q.en;
+  document.getElementById('quiz-explanation').className = 'quiz-explanation';
+  document.getElementById('btn-next').className = 'btn-next';
+  qState.answered = false;
+  const opts = q.opts[lang] || q.opts.en;
+  const letters = ['A','B','C','D'];
+  document.getElementById('quiz-options').innerHTML = opts.map((opt,i) =>
+    `<button class="quiz-option" onclick="selectAnswer(${i})"><span class="opt-letter">${letters[i]}</span>${opt}</button>`
+  ).join('');
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(qState.timer);
+  qState.timeLeft = 20; updateTimer();
+  qState.timer = setInterval(() => {
+    qState.timeLeft--;
+    updateTimer();
+    if (qState.timeLeft <= 0) { clearInterval(qState.timer); if(!qState.answered) timeUp(); }
+  }, 1000);
+}
+
+function updateTimer() {
+  const el = document.getElementById('quiz-timer');
+  el.textContent = qState.timeLeft;
+  el.className = 'quiz-timer' + (qState.timeLeft <= 5 ? ' urgent' : '');
+}
+
+function timeUp() {
+  qState.answered = true;
+  revealAnswer(-1);
+  showToast(t('quiz_timeout'), 'error');
+}
+
+function selectAnswer(idx) {
+  if (qState.answered) return;
+  qState.answered = true;
+  clearInterval(qState.timer);
+  const q = QUESTIONS[qState.idx];
+  const correct = idx === q.ans;
+  const bonus = correct ? Math.floor(qState.timeLeft * 2.5) : 0;
+  if (correct) { qState.score++; qState.bonusTotal += bonus; }
+  revealAnswer(idx);
+  showToast(correct ? `${t('quiz_correct')} +50 PTS${bonus>0?` +${bonus}`:''}`  : t('quiz_wrong'), correct?'success':'error');
+}
+
+function revealAnswer(selected) {
+  const q = QUESTIONS[qState.idx];
+  document.querySelectorAll('.quiz-option').forEach((btn,i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add(selected===i ? 'correct' : 'reveal');
+    else if (i === selected && i !== q.ans) btn.classList.add('wrong');
+  });
+  const exp = document.getElementById('quiz-explanation');
+  exp.textContent = q.exp[lang] || q.exp.en;
+  exp.className = 'quiz-explanation show';
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function nextQuestion() {
+  qState.idx++;
+  if (qState.idx >= QUESTIONS.length) showResult();
+  else renderQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz-game').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  const s = qState.score, total = QUESTIONS.length;
+  const earned = s * 50 + qState.bonusTotal;
+  totalPts += earned;
+  localStorage.setItem('locus_quiz_pts', totalPts);
+  updateNavPts();
+  document.getElementById('result-score').textContent = `${s}/${total}`;
+  const tier = Math.min(Math.floor(s/total*4), 4);
+  document.getElementById('result-title').textContent = t('result_titles')[tier];
+  document.getElementById('result-sub').textContent   = t('result_subs')[tier];
+  document.getElementById('rr-correct').textContent   = s + (lang==='en'?' correct':(lang==='ja'?'問正解':'문제'));
+  document.getElementById('rr-bonus').textContent     = '+' + qState.bonusTotal + ' PTS';
+  document.getElementById('rr-pts').textContent       = '+' + earned + ' PTS';
+  let badge = '—';
+  if (s >= 10 && !quizBadges.includes('quiz_master')) {
+    quizBadges.push('quiz_master'); localStorage.setItem('locus_quiz_badges', JSON.stringify(quizBadges));
+    badge = '🧠 Quiz Master';
+    showToast(t('toast_quiz_master'), 'gold');
+  } else if (s >= 7 && !quizBadges.includes('quiz_pro')) {
+    quizBadges.push('quiz_pro'); localStorage.setItem('locus_quiz_badges', JSON.stringify(quizBadges));
+    badge = '⭐ Quiz Pro';
+  }
+  document.getElementById('rr-badge').textContent = badge;
+}
+
+function resetQuiz() {
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-start').style.display = 'block';
+}
+
+function shareResult() {
+  const text = t('share_text').replace('{score}', qState.score);
+  if (navigator.clipboard) { navigator.clipboard.writeText(text); showToast(t('toast_copied'), 'success'); }
+}
+
+/* ══════════════════════════════════
+   예측 게임
+══════════════════════════════════ */
+function renderPredictions() {
+  const qs = t('predict_qs');
+  document.getElementById('predict-cards').innerHTML = PREDICTIONS_DATA.map((p,i) => {
+    const voted = p.myVote !== null, ended = p.status === 'ended';
+    return `<div class="predict-card">
+      <span class="predict-card-tag ${p.status}">${ended ? t('predict_ended') : t('predict_open')}</span>
+      <div class="predict-q">${qs[i]}</div>
+      <div class="predict-options">
+        <button class="predict-opt ${p.myVote==='yes'?'selected-yes':''}" onclick="vote('${p.id}','yes')" ${voted||ended?'disabled':''}>✓ YES</button>
+        <button class="predict-opt ${p.myVote==='no'?'selected-no':''}"  onclick="vote('${p.id}','no')"  ${voted||ended?'disabled':''}>✗ NO</button>
+      </div>
+      <div class="predict-bar-labels"><span>YES ${p.yes}%</span><span>NO ${p.no}%</span></div>
+      <div class="predict-bar"><div class="predict-bar-fill" style="width:${p.yes}%"></div></div>
+      <div class="predict-voters">${p.total.toLocaleString()} · ${p.reward} PTS</div>
+      ${ended && p.result !== undefined ? `<div style="margin-top:9px;font-family:var(--mono);font-size:12px;color:var(--gold)">${p.result?t('predict_result_yes'):t('predict_result_no')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function vote(id, choice) {
+  const p = PREDICTIONS_DATA.find(x => x.id === id);
+  if (!p || p.myVote !== null || p.status === 'ended') return;
+  p.myVote = choice;
+  if (choice === 'yes') { p.yes = Math.round((p.yes*p.total+100)/(p.total+1)); p.no = 100-p.yes; }
+  else { p.no = Math.round((p.no*p.total+100)/(p.total+1)); p.yes = 100-p.no; }
+  p.total++;
+  totalPts += 30;
+  localStorage.setItem('locus_quiz_pts', totalPts);
+  updateNavPts();
+  renderPredictions();
+  showToast(t('toast_voted'), 'success');
+}
+
+/* ══════════════════════════════════
+   TX 경쟁
+══════════════════════════════════ */
+function renderTxBoard() {
+  const rc = ['g','','','',''];
+  const rs = ['🥇','🥈','🥉','#4','#5'];
+  document.getElementById('tx-board-body').innerHTML = TX_BOARD_DATA.map((r,i) =>
+    `<div class="tx-row">
+      <div class="tx-rank ${rc[i]}">${rs[i]}</div>
+      <div class="tx-addr">${r.addr}</div>
+      <div class="tx-count">${r.count.toLocaleString()} TX</div>
+      <div class="tx-reward">${r.reward}</div>
+    </div>`
+  ).join('');
+  const w = Math.ceil((new Date()-new Date('2025-01-01'))/(7*24*60*60*1000));
+  document.getElementById('tx-period').textContent = 'WEEK ' + ((w%52)||1);
+}
+
+function submitTx() {
+  const addr = document.getElementById('tx-addr-input').value.trim();
+  const count = parseInt(document.getElementById('tx-count-input').value);
+  if (!addr) { showToast(t('toast_tx_err_addr'), 'error'); return; }
+  if (!count || count < 0) { showToast(t('toast_tx_err_count'), 'error'); return; }
+  const ex = TX_BOARD_DATA.findIndex(r => r.addr === addr);
+  if (ex >= 0) TX_BOARD_DATA[ex].count = count;
+  else TX_BOARD_DATA.push({addr: addr.length>10 ? addr.slice(0,6)+'...'+addr.slice(-4) : addr, count, reward:'+50 PTS'});
+  TX_BOARD_DATA.sort((a,b) => b.count-a.count);
+  TX_BOARD_DATA.forEach((r,i) => { r.reward = ['🥇 +500 PTS','🥈 +300 PTS','🥉 +150 PTS'][i]||'+50 PTS'; });
+  totalPts += 20;
+  localStorage.setItem('locus_quiz_pts', totalPts);
+  updateNavPts();
+  document.getElementById('tx-addr-input').value = '';
+  document.getElementById('tx-count-input').value = '';
+  renderTxBoard();
+  showToast(t('toast_tx_ok'), 'success');
+}
+
+/* ══════════════════════════════════
+   게시판
+══════════════════════════════════ */
+let posts = [];
+let boardListenerAttached = false;
+
+function initPosts() {
+  // Firebase 실시간 리스너 — 게시판 탭 열릴 때 한 번만 등록
+  if (boardListenerAttached) return;
+  boardListenerAttached = true;
+
+  const postsRef = db.ref('posts').orderByChild('ts').limitToLast(50);
+  postsRef.on('value', snap => {
+    posts = [];
+    snap.forEach(child => {
+      posts.unshift({...child.val(), key: child.key});
+    });
+    renderPosts();
+    // 참여자 수 통계 업데이트
+    const uniqueAuthors = new Set(posts.map(p => p.author));
+    const el = document.getElementById('stat-members');
+    if (el) el.textContent = Math.max(1247, uniqueAuthors.size + 1247).toLocaleString();
+  });
+}
+
+function renderPosts() {
+  const listEl = document.getElementById('post-list');
+  if (!listEl) return;
+  if (!posts.length) {
+    listEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text3);font-size:14px">${lang==='ja'?'まだ投稿がありません':lang==='en'?'No posts yet. Be the first!':'아직 게시글이 없습니다. 첫 글을 남겨보세요!'}</div>`;
+    return;
+  }
+  listEl.innerHTML = posts.map(p => {
+    const ago = formatTimeAgo(p.ts);
+    return `
+    <div class="post-item">
+      <div class="post-meta">
+        <span class="post-badge-mini">${p.badge || '⬡'}</span>
+        <span class="post-author">${p.author}</span>
+        <span class="post-time">${ago}</span>
+      </div>
+      <div class="post-title">${escapeHtml(p.title)}</div>
+    </div>`;
+  }).join('');
+}
+
+function submitPost() {
+  if (!connected) return;
+  const input = document.getElementById('post-input');
+  const text = input.value.trim();
+  if (!text || text.length > 120) return;
+  const icon = myBadges.length > 0 ? BADGE_ICONS[BADGE_IDS.indexOf(myBadges[0])] || '⬡' : '⬡';
+
+  // Firebase에 저장
+  db.ref('posts').push({
+    author: address,
+    badge: icon,
+    title: text,
+    ts: Date.now()
+  }).then(() => {
+    postCount++;
+    if (postCount >= 5 && !myBadges.includes('educator')) {
+      myBadges.push('educator'); myPoints += 150;
+      showToast(t('toast_educator'), 'success');
+      renderBadges(); updateWalletInfo();
+    }
+    saveUserData();
+    input.value = '';
+  }).catch(err => {
+    showToast('저장 실패: ' + err.message, 'error');
+  });
+}
+
+function formatTimeAgo(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  const hr  = Math.floor(diff / 3600000);
+  const day = Math.floor(diff / 86400000);
+  if (min < 1)  return t('just_now');
+  if (min < 60) return min + (lang==='ja'?'分前':lang==='en'?' min ago':'분 전');
+  if (hr  < 24) return hr  + (lang==='ja'?t('hours_ago'):lang==='en'?' hr ago':t('hours_ago'));
+  return day + (lang==='ja'?'日前':lang==='en'?' day'+(day>1?'s':'')+' ago':'일 전');
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ══════════════════════════════════
+   토스트
+══════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+/* ══════════════════════════════════
+   초기화
+══════════════════════════════════ */
+setLang(lang);
+renderPosts();
+renderTxBoard();
+updateNavPts();
+
+// 통계 카운터 애니메이션
+function animCount(el, target) {
+  let cur = 0; const step = Math.ceil(target/40);
+  const iv = setInterval(() => { cur = Math.min(cur+step,target); el.textContent = cur.toLocaleString(); if(cur>=target)clearInterval(iv); },30);
+}
+setTimeout(() => {
+  animCount(document.getElementById('stat-members'), 1247);
+  animCount(document.getElementById('stat-badges'),  3891);
+}, 400);
+
+/* ══════════════════════════════════
+   PRICE: CoinGecko API
+══════════════════════════════════ */
+let priceLoaded = false;
+let priceHistory = [];
+
+async function fetchPrice() {
+  const noteEl = document.getElementById('price-update-note');
+  try {
+    // CoinGecko free API — no key needed
+    const [marketRes, chartRes] = await Promise.all([
+      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=locus-chain&price_change_percentage=24h'),
+      fetch('https://api.coingecko.com/api/v3/coins/locus-chain/market_chart?vs_currency=usd&days=7&interval=daily')
+    ]);
+    const [marketData, chartData] = await Promise.all([marketRes.json(), chartRes.json()]);
+    const d = marketData[0];
+    if (!d) throw new Error('No data');
+
+    // 가격
+    const price = d.current_price;
+    const change = d.price_change_percentage_24h;
+    document.getElementById('price-usd').textContent = '$' + price.toFixed(6);
+    const changeEl = document.getElementById('price-change');
+    changeEl.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2) + '% (24h)';
+    changeEl.className = 'price-change ' + (change >= 0 ? 'up' : 'down');
+
+    // 통계
+    document.getElementById('price-mktcap').textContent  = '$' + fmtNum(d.market_cap);
+    document.getElementById('price-vol').textContent      = '$' + fmtNum(d.total_volume);
+    document.getElementById('price-high').textContent     = '$' + d.high_24h.toFixed(6);
+    document.getElementById('price-low').textContent      = '$' + d.low_24h.toFixed(6);
+    document.getElementById('price-supply').textContent   = fmtNum(d.circulating_supply) + ' LOCUS';
+    document.getElementById('price-ath').textContent      = '$' + d.ath.toFixed(4);
+
+    // 미니 차트
+    if (chartData.prices && chartData.prices.length > 0) {
+      priceHistory = chartData.prices;
+      renderPriceChart(priceHistory);
+    }
+
+    const now = new Date();
+    noteEl.textContent = t('price_updated') + now.toLocaleTimeString();
+    priceLoaded = true;
+  } catch(e) {
+    noteEl.textContent = t('price_error') + ' (CORS 또는 API 제한)';
+    // fallback: 최근 검색 기준 수동 데이터 표시
+    renderPriceFallback();
+  }
+}
+
+function renderPriceFallback() {
+  // 검색 결과 기준 수동 참조값 (실시간 아님)
+  document.getElementById('price-usd').textContent    = '~$0.0085';
+  document.getElementById('price-change').textContent = '실시간 데이터 없음';
+  document.getElementById('price-change').className   = 'price-change';
+  document.getElementById('price-mktcap').textContent = '~$60M';
+  document.getElementById('price-vol').textContent    = '~$186K';
+  document.getElementById('price-high').textContent   = '—';
+  document.getElementById('price-low').textContent    = '—';
+  document.getElementById('price-supply').textContent = '~7B LOCUS';
+  document.getElementById('price-ath').textContent    = '$0.753';
+  // 더미 차트
+  const dummyPrices = [[0,0.0088],[0,0.0091],[0,0.0087],[0,0.0083],[0,0.0085],[0,0.0084],[0,0.0085]];
+  renderPriceChart(dummyPrices);
+}
+
+function renderPriceChart(prices) {
+  const vals = prices.map(p => p[1]);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 0.000001;
+  const barsEl = document.getElementById('price-bars');
+  const labelsEl = document.getElementById('price-chart-labels');
+  const days = ['7d ago','6d','5d','4d','3d','2d','Today'];
+  barsEl.innerHTML = vals.map((v, i) => {
+    const h = Math.max(6, ((v - min) / range) * 76);
+    const isUp = i === 0 || v >= vals[i-1];
+    const col = isUp ? 'rgba(0,255,157,0.7)' : 'rgba(255,107,53,0.7)';
+    return `<div class="price-bar-item" style="height:${h}px;background:${col}">
+      <div class="bar-tip">$${v.toFixed(6)}</div>
+    </div>`;
+  }).join('');
+  labelsEl.innerHTML = vals.map((_,i) => `<div class="price-chart-label">${days[i]||''}</div>`).join('');
+}
+
+function fmtNum(n) {
+  if (!n) return '—';
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(2) + 'K';
+  return n.toFixed(2);
+}
+
+// 가격 탭 클릭 시 로드
+const origSwitchTab = switchTab;
+window.switchTab = function(tab, btn) {
+  origSwitchTab(tab, btn);
+  if (tab === 'price' && !priceLoaded) fetchPrice();
+  if (tab === 'puzzle' && !puzzleInited) initPuzzle();
+  if (tab === 'board' && !boardListenerAttached) initPosts();
+};
+
+/* ══════════════════════════════════
+   PUZZLE: 커뮤니티 픽셀 퍼즐
+══════════════════════════════════ */
+const GRID = 28;           // 28×28 = 784 셀
+const CELL = 20;           // px per cell
+let puzzleInited = false;
+let puzzleGrid = [];       // [index] = {color, painter}
+let myPaintedCells = [];   // 내가 칠한 셀 인덱스
+let currentColor = '#00d4ff';
+let currentTool = 'paint';
+let isPainting = false;
+let puzzleCtx, overlayCtx;
+
+// Locus Chain 로고를 28×28 그리드로 추상화
+// ⬡ 헥사곤 심볼을 픽셀 아트로 표현
+const LOGO_TEMPLATE = (() => {
+  // 28×28 그리드, 0=배경, 1=외곽선, 2=채움
+  const G = Array(GRID * GRID).fill(0);
+  const cx = 13.5, cy = 13.5, R = 12, r = 7;
+  for (let row = 0; row < GRID; row++) {
+    for (let col = 0; col < GRID; col++) {
+      const x = col - cx, y = row - cy;
+      // 헥사곤 체크 (flat-top)
+      const dist = Math.max(Math.abs(x), Math.abs(y * 2/Math.sqrt(3)), Math.abs(x + y * 2/Math.sqrt(3))/1, Math.abs(x - y * 2/Math.sqrt(3))/1);
+      const hexOuter = (Math.abs(x)*0.866 + Math.abs(y)*0.5 <= R*0.866 + 0.3) && (Math.abs(y) <= R + 0.3);
+      const hexInner = (Math.abs(x)*0.866 + Math.abs(y)*0.5 <= r*0.866 - 0.3) && (Math.abs(y) <= r - 0.3);
+      if (hexOuter && !hexInner) G[row * GRID + col] = 1;
+      else if (hexInner) G[row * GRID + col] = 2;
+    }
+  }
+  return G;
+})();
+
+const LOGO_COLORS = { 0: null, 1: '#00d4ff', 2: '#7c4dff' };
+
+// 팔레트
+const PALETTE = [
+  '#00d4ff','#7c4dff','#00ff9d','#ff6b35','#ffd700',
+  '#ffffff','#c0c0c0','#4a5568','#ff4081','#00bcd4',
+  '#8bc34a','#ff9800','#e91e63','#9c27b0','#2196f3',
+];
+
+function initPuzzle() {
+  puzzleInited = true;
+  const canvas = document.getElementById('puzzle-canvas');
+  const overlay = document.getElementById('puzzle-overlay');
+  puzzleCtx = canvas.getContext('2d');
+  overlayCtx = overlay.getContext('2d');
+
+  // 로컬에서 내가 칠한 셀 복원
+  const savedMine = localStorage.getItem('locus_puzzle_mine_' + (address || 'anon'));
+  if (savedMine) myPaintedCells = JSON.parse(savedMine);
+
+  // 팔레트·이벤트 먼저 세팅
+  renderPalette();
+  bindPuzzleEvents(canvas);
+
+  // 빈 그리드 초기화 후 즉시 렌더
+  puzzleGrid = Array(GRID * GRID).fill(null).map(() => ({color: null, painter: null}));
+  drawPuzzle();
+
+  // Firebase 실시간 리스너 — 전체 그리드 구독
+  db.ref('puzzle/grid').on('value', snap => {
+    const data = snap.val();
+    if (data) {
+      puzzleGrid = Array(GRID * GRID).fill(null).map((_, i) =>
+        data[i] ? data[i] : {color: null, painter: null}
+      );
+    } else {
+      puzzleGrid = Array(GRID * GRID).fill(null).map(() => ({color: null, painter: null}));
+    }
+    drawPuzzle();
+    renderMilestones();
+    renderContributors();
+  });
+
+  // 최근 기여자 구독
+  db.ref('puzzle/contributors').orderByChild('ts').limitToLast(10).on('value', snap => {
+    const data = snap.val();
+    const list = document.getElementById('puzzle-contributors-list');
+    if (!list) return;
+    if (!data) {
+      list.innerHTML = `<div style="font-size:13px;color:var(--text3)">${lang==='ja'?'まだ参加者がいません':lang==='en'?'No contributors yet':'아직 참여자가 없습니다'}</div>`;
+      return;
+    }
+    const entries = Object.values(data).sort((a,b) => b.ts - a.ts).slice(0, 5);
+    list.innerHTML = entries.map(e => `
+      <div class="contributor-row">
+        <span class="contributor-addr">${e.addr}</span>
+        <span class="contributor-cells">${e.cells} cells</span>
+        <span class="contributor-time">${formatTimeAgo(e.ts)}</span>
+      </div>`).join('');
+  });
+}
+
+function renderPalette() {
+  document.getElementById('color-swatches').innerHTML = PALETTE.map(c =>
+    `<div class="color-swatch${c === currentColor ? ' active' : ''}" style="background:${c}" onclick="selectColor('${c}')"></div>`
+  ).join('');
+}
+
+function selectColor(c) {
+  currentColor = c;
+  renderPalette();
+}
+
+function setTool(tool) {
+  currentTool = tool;
+  document.getElementById('tool-paint').className = 'puzzle-tool-btn' + (tool === 'paint' ? ' active' : '');
+  document.getElementById('tool-erase').className = 'puzzle-tool-btn' + (tool === 'erase' ? ' active' : '');
+}
+
+function bindPuzzleEvents(canvas) {
+  const getCell = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cx = (e.clientX - rect.left) * scaleX;
+    const cy = (e.clientY - rect.top) * scaleY;
+    const col = Math.floor(cx / CELL), row = Math.floor(cy / CELL);
+    if (col < 0 || col >= GRID || row < 0 || row >= GRID) return -1;
+    return row * GRID + col;
+  };
+  const getTouchCell = (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    return getCell(touch);
+  };
+  canvas.addEventListener('mousedown', e => { isPainting = true; paintCell(getCell(e)); });
+  canvas.addEventListener('mousemove', e => { if (isPainting) paintCell(getCell(e)); });
+  canvas.addEventListener('mouseup', () => { isPainting = false; });
+  canvas.addEventListener('mouseleave', () => { isPainting = false; });
+  canvas.addEventListener('touchstart', e => { isPainting = true; paintCell(getTouchCell(e)); }, {passive:false});
+  canvas.addEventListener('touchmove', e => { paintCell(getTouchCell(e)); }, {passive:false});
+  canvas.addEventListener('touchend', () => { isPainting = false; });
+}
+
+function paintCell(idx) {
+  if (idx < 0 || LOGO_TEMPLATE[idx] === 0) return; // 배경은 칠할 수 없음
+  const cell = puzzleGrid[idx];
+  const painter = address || 'anon';
+  if (currentTool === 'erase') {
+    if (cell.painter === painter) {
+      puzzleGrid[idx] = {color: null, painter: null};
+      myPaintedCells = myPaintedCells.filter(i => i !== idx);
+    }
+  } else {
+    if (cell.color === currentColor) return;
+    puzzleGrid[idx] = {color: currentColor, painter};
+    if (!myPaintedCells.includes(idx)) {
+      myPaintedCells.push(idx);
+      // 첫 칠 시 포인트 지급 (최대 50개까지)
+      if (myPaintedCells.length <= 50) {
+        totalPts += 5;
+        localStorage.setItem('locus_quiz_pts', totalPts);
+        updateNavPts();
+        if (myPaintedCells.length === 1) showToast(t('puzzle_toast_paint'), 'success');
+      }
+    }
+  }
+  savePuzzleGrid();
+  drawPuzzle();
+  renderMilestones();
+}
+
+function savePuzzleGrid() {
+  // 로컬 백업 (내가 칠한 셀만)
+  localStorage.setItem('locus_puzzle_mine_' + (address || 'anon'), JSON.stringify(myPaintedCells));
+
+  // Firebase patch — 변경된 셀만 업데이트
+  const updates = {};
+  myPaintedCells.forEach(idx => {
+    updates['puzzle/grid/' + idx] = puzzleGrid[idx] && puzzleGrid[idx].color
+      ? puzzleGrid[idx]
+      : {color: null, painter: null};
+  });
+  if (Object.keys(updates).length) {
+    db.ref().update(updates).catch(err => console.warn('Firebase write:', err));
+  }
+
+  // 기여자 정보 업데이트
+  if (address && myPaintedCells.length > 0) {
+    const safeAddr = address.replace(/[.#$\[\]]/g, '_');
+    db.ref('puzzle/contributors/' + safeAddr).set({
+      addr: address,
+      cells: myPaintedCells.length,
+      ts: Date.now()
+    });
+  }
+}
+
+function drawPuzzle() {
+  const ctx = puzzleCtx;
+  ctx.clearRect(0, 0, GRID * CELL, GRID * CELL);
+
+  for (let i = 0; i < GRID * GRID; i++) {
+    const col = i % GRID, row = Math.floor(i / GRID);
+    const x = col * CELL, y = row * CELL;
+    const tmpl = LOGO_TEMPLATE[i];
+    const cell = puzzleGrid[i];
+
+    if (tmpl === 0) {
+      // 배경 — 투명 (진한 bg)
+      ctx.fillStyle = 'rgba(5,8,16,0.95)';
+      ctx.fillRect(x, y, CELL, CELL);
+      continue;
+    }
+
+    // 베이스 (로고 윤곽 힌트 — 연한 가이드)
+    const guideColor = tmpl === 1 ? 'rgba(0,212,255,0.12)' : 'rgba(124,77,255,0.10)';
+    ctx.fillStyle = guideColor;
+    ctx.fillRect(x, y, CELL, CELL);
+
+    // 홀더가 칠한 색
+    if (cell && cell.color) {
+      ctx.fillStyle = cell.color;
+      ctx.fillRect(x + 1, y + 1, CELL - 2, CELL - 2);
+    }
+
+    // 셀 경계선
+    ctx.strokeStyle = 'rgba(30,42,64,0.6)';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(x, y, CELL, CELL);
+  }
+
+  // 완성도 & 기여자 업데이트
+  updatePuzzleStats();
+
+  // 로고 외곽 글로우 (overlay)
+  const ov = overlayCtx;
+  ov.clearRect(0, 0, GRID * CELL, GRID * CELL);
+  const filledRatio = getPuzzleCompletion();
+  if (filledRatio > 0.8) {
+    // 90% 이상 완성 시 글로우 효과
+    ov.shadowColor = '#00d4ff';
+    ov.shadowBlur = 20;
+    ov.strokeStyle = 'rgba(0,212,255,0.3)';
+    ov.lineWidth = 2;
+    for (let i = 0; i < GRID * GRID; i++) {
+      if (LOGO_TEMPLATE[i] === 0) continue;
+      const col = i % GRID, row = Math.floor(i / GRID);
+      ov.strokeRect(col * CELL, row * CELL, CELL, CELL);
+    }
+  }
+}
+
+function getPuzzleCompletion() {
+  const total = LOGO_TEMPLATE.filter(v => v !== 0).length;
+  const filled = puzzleGrid.filter((c, i) => LOGO_TEMPLATE[i] !== 0 && c && c.color).length;
+  return filled / total;
+}
+
+function updatePuzzleStats() {
+  const pct = Math.round(getPuzzleCompletion() * 100);
+  const pctEl = document.getElementById('puzzle-pct');
+  const fillEl = document.getElementById('puzzle-progress-fill');
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (fillEl) fillEl.style.width = pct + '%';
+
+  // 기여자 수 (고유 painter)
+  const painters = new Set(puzzleGrid.filter(c => c && c.painter).map(c => c.painter));
+  const countEl = document.getElementById('puzzle-contributors-count');
+  if (countEl) countEl.textContent = painters.size;
+}
+
+function renderMilestones() {
+  const pct = Math.round(getPuzzleCompletion() * 100);
+  const painters = new Set(puzzleGrid.filter(c => c && c.painter).map(c => c.painter));
+  const thresholds = [
+    {icon:'🌱', pct: 0, check: () => painters.size >= 1},
+    {icon:'🌟', pct: 25, check: () => pct >= 25},
+    {icon:'🔥', pct: 50, check: () => pct >= 50},
+    {icon:'👑', pct:100, check: () => pct >= 100},
+  ];
+  const labels = t('milestone_labels'), subs = t('milestone_subs');
+  document.getElementById('puzzle-milestones').innerHTML = thresholds.map((m, i) => {
+    const done = m.check();
+    return `<div class="milestone-row">
+      <div class="milestone-icon">${m.icon}</div>
+      <div class="milestone-info">
+        <div class="milestone-label">${labels[i]}</div>
+        <div class="milestone-sub">${subs[i]}</div>
+      </div>
+      <div class="milestone-status ${done ? 'done' : 'todo'}">${done ? '✓ 달성' : m.pct > 0 ? m.pct + '%' : '대기'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderContributors() {
+  // Firebase 리스너가 실시간으로 직접 렌더 (initPuzzle 내부)
+}
+
+function resetMyContribution() {
+  myPaintedCells.forEach(idx => {
+    if (puzzleGrid[idx] && puzzleGrid[idx].painter === (address || 'anon')) {
+      puzzleGrid[idx] = {color: null, painter: null};
+    }
+  });
+  myPaintedCells = [];
+  savePuzzleGrid();
+  drawPuzzle();
+  renderMilestones();
+  renderContributors();
+  showToast(t('puzzle_toast_reset'), 'error');
+}
+</script>
+</body>
+</html>
