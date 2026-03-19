@@ -1104,17 +1104,60 @@ async function connectWallet() {
   btn.disabled = true;
   btn.textContent = '...';
   try {
-    const accounts = await window.locus.request({method:'eth_requestAccounts'});
-    const addr = accounts[0];
+    let addr = null;
+
+    // 방법 1: locus.on('connect') 이벤트 방식 (익스플로러 방식)
+    // window.locus가 connect 이벤트를 통해 주소를 전달
+    const connectPromise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('timeout')), 10000);
+
+      // connect 이벤트 리스너 등록
+      window.locus.on('connect', (info) => {
+        clearTimeout(timeout);
+        resolve(info);
+      });
+
+      // request로 연결 트리거
+      window.locus.request({method: 'eth_requestAccounts'}).then(accounts => {
+        if (accounts && accounts[0]) {
+          clearTimeout(timeout);
+          resolve({address: accounts[0]});
+        }
+      }).catch(() => {});
+
+      // locus_requestAccounts 도 시도
+      window.locus.request({method: 'locus_requestAccounts'}).then(accounts => {
+        if (accounts && accounts[0]) {
+          clearTimeout(timeout);
+          resolve({address: accounts[0]});
+        }
+      }).catch(() => {});
+    });
+
+    const info = await connectPromise;
+
+    // 주소 추출 — 다양한 응답 형태 대응
+    if (typeof info === 'string') addr = info;
+    else if (info && info.address) addr = info.address;
+    else if (info && info.account) addr = info.account;
+    else if (Array.isArray(info) && info[0]) addr = info[0];
+
     if (!addr) throw new Error('No account returned');
-    onConnected(addr);
+
+    // 주소 축약 표시
+    const shortAddr = addr.length > 16
+      ? addr.slice(0, 8) + '...' + addr.slice(-6)
+      : addr;
+
+    onConnected(shortAddr);
   } catch(e) {
     btn.disabled = false;
     btn.textContent = t('btn_connect');
-    // 사용자가 연결 거부한 경우
-    const msg = e.code === 4001
-      ? (lang === 'ko' ? '연결을 거부했습니다.' : lang === 'ja' ? '接続を拒否しました。' : 'Connection rejected.')
-      : (e.message || 'Error');
+    const msg = e.message === 'timeout'
+      ? (lang === 'ko' ? '연결 시간이 초과됐습니다. 지갑 팝업을 확인해주세요.' : lang === 'ja' ? '接続がタイムアウトしました。' : 'Connection timed out. Check your wallet popup.')
+      : e.code === 4001
+        ? (lang === 'ko' ? '연결을 거부했습니다.' : lang === 'ja' ? '接続を拒否しました。' : 'Connection rejected.')
+        : (e.message || 'Error');
     showToast(msg, 'error');
   }
 }
