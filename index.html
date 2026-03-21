@@ -319,6 +319,7 @@ const db = firebase.database();
     <button class="tab-btn" onclick="switchTab('puzzle',this)" data-i18n="tab_puzzle">🧩 퍼즐</button>
     <button class="tab-btn" onclick="switchTab('arcade',this)" data-i18n="tab_arcade">🕹️ 게임</button>
     <button class="tab-btn" onclick="switchTab('tx',this)" data-i18n="tab_tx">TX 경쟁</button>
+    <button class="tab-btn" onclick="switchTab('news',this)" data-i18n="tab_news">📰 뉴스</button>
     <button class="tab-btn" onclick="switchTab('board',this)" data-i18n="tab_board">게시판</button>
     <button class="tab-btn" onclick="switchTab('map',this)" data-i18n="tab_map">🌍 노드맵</button>
     <button class="tab-btn" onclick="switchTab('price',this)" data-i18n="tab_price">📈 LOCUS</button>
@@ -511,6 +512,101 @@ const db = firebase.database();
     </div>
   </div>
 </div>
+
+<!-- ══════════ NEWS ══════════ -->
+<div id="tab-news" class="tab-panel">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title">📰 <span data-i18n="tab_news">뉴스</span></div>
+      <div class="section-sub" data-i18n="news_sub">크립토 & 경제 실시간 뉴스</div>
+    </div>
+
+    <!-- 카테고리 필터 -->
+    <div class="news-filters">
+      <button class="news-filter-btn active" onclick="setNewsFilter('all',this)" data-i18n="news_filter_all">전체</button>
+      <button class="news-filter-btn" onclick="setNewsFilter('crypto',this)" data-i18n="news_filter_crypto">크립토</button>
+      <button class="news-filter-btn" onclick="setNewsFilter('economy',this)" data-i18n="news_filter_economy">경제</button>
+      <button class="news-filter-btn" onclick="setNewsFilter('locus',this)">Locus</button>
+    </div>
+
+    <!-- 언어별 뉴스 섹션 -->
+    <div id="news-wrap">
+      <!-- KO -->
+      <div class="news-lang-section" id="news-ko">
+        <div class="news-lang-header">
+          <span class="news-lang-flag">🇰🇷</span>
+          <span class="news-lang-title" data-i18n="news_ko_title">한국어 뉴스</span>
+          <span class="news-source-tag">블록미디어 · 코인데스크코리아</span>
+        </div>
+        <div class="news-list" id="news-list-ko">
+          <div class="news-loading" data-i18n="news_loading">뉴스 불러오는 중...</div>
+        </div>
+      </div>
+
+      <!-- EN -->
+      <div class="news-lang-section" id="news-en">
+        <div class="news-lang-header">
+          <span class="news-lang-flag">🇺🇸</span>
+          <span class="news-lang-title" data-i18n="news_en_title">English News</span>
+          <span class="news-source-tag">CoinTelegraph · CoinDesk</span>
+        </div>
+        <div class="news-list" id="news-list-en">
+          <div class="news-loading" data-i18n="news_loading">뉴스 불러오는 중...</div>
+        </div>
+      </div>
+
+      <!-- JA -->
+      <div class="news-lang-section" id="news-ja">
+        <div class="news-lang-header">
+          <span class="news-lang-flag">🇯🇵</span>
+          <span class="news-lang-title" data-i18n="news_ja_title">日本語ニュース</span>
+          <span class="news-source-tag">CoinPost · CoinTelegraph JP</span>
+        </div>
+        <div class="news-list" id="news-list-ja">
+          <div class="news-loading" data-i18n="news_loading">뉴스 불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="news-update-note" id="news-update-note"></div>
+  </div>
+</div>
+
+<style>
+/* ══ NEWS ══ */
+.news-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.news-filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text2);cursor:pointer;transition:all .18s;text-transform:uppercase}
+.news-filter-btn:hover{border-color:rgba(0,212,255,.3);color:var(--text)}
+.news-filter-btn.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--accent)}
+
+.news-lang-section{margin-bottom:32px}
+.news-lang-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.news-lang-flag{font-size:22px}
+.news-lang-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+.news-source-tag{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);padding:3px 9px;border-radius:100px}
+
+.news-loading{font-family:var(--mono);font-size:13px;color:var(--text3);padding:20px 0;text-align:center}
+.news-error{font-family:var(--mono);font-size:12px;color:var(--warn);padding:12px 0;text-align:center}
+
+.news-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.news-item:hover{border-color:rgba(0,212,255,.3);background:var(--surface2);transform:translateX(3px)}
+.news-item-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.news-item-source{font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);padding:2px 8px;border-radius:100px}
+.news-item-time{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.news-item-tag{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:100px}
+.news-item-tag.crypto{background:rgba(124,77,255,.1);color:var(--accent2);border:1px solid rgba(124,77,255,.2)}
+.news-item-tag.economy{background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+.news-item-tag.locus{background:rgba(0,255,157,.08);color:var(--accent3);border:1px solid rgba(0,255,157,.2)}
+.news-item-title{font-size:14px;font-weight:500;color:var(--text);line-height:1.5;margin-bottom:5px}
+.news-item-desc{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.news-update-note{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:8px}
+
+@media(max-width:600px){
+  .news-lang-section{margin-bottom:24px}
+  .news-item{padding:13px 14px}
+}
+</style>
 
 <!-- ══════════ MAP ══════════ -->
 <div id="tab-map" class="tab-panel">
@@ -1346,6 +1442,12 @@ const I18N = {
     map_loading:'🌍 지도 로딩 중...',
     continent_america:'아메리카', continent_europe:'유럽', continent_asia:'아시아',
     continent_africa:'아프리카', continent_oceania:'오세아니아',
+    news_sub:'크립토 & 경제 실시간 뉴스',
+    news_filter_all:'전체', news_filter_crypto:'크립토', news_filter_economy:'경제',
+    news_ko_title:'한국어 뉴스', news_en_title:'English News', news_ja_title:'日本語ニュース',
+    news_loading:'뉴스 불러오는 중...', news_error:'뉴스를 불러오지 못했습니다',
+    news_tag_crypto:'크립토', news_tag_economy:'경제', news_tag_locus:'Locus',
+    news_updated:'업데이트: ', news_read_more:'더 보기 →',
     badges_title:'// 배지 컬렉션', badges_sub:'활동을 통해 배지를 획득하세요',
     badge_earned:'✓ 획득', badge_locked_prefix:'+',
     ranking_title:'// 리더보드', ranking_sub:'테스트넷 기여도 순위',
@@ -1369,7 +1471,7 @@ const I18N = {
     tx_board_title:'// 이번 주 순위', tx_submit_title:'// 내 TX 수 등록',
     tx_ph_addr:'지갑 주소 (0x...)', tx_ph_count:'TX 수', tx_submit_btn:'등록',
     tx_note:'⚠ 테스트넷 탐험기 기준 실제 수치만 입력해주세요.',
-    tab_price:'📈 LOCUS', tab_puzzle:'🧩 퍼즐', tab_arcade:'🕹️ 게임', tab_map:'🌍 노드맵',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 퍼즐', tab_arcade:'🕹️ 게임', tab_map:'🌍 노드맵', tab_news:'📰 뉴스',
     price_title:'// LOCUS 시세', price_sub:'CoinGecko 기준 실시간 가격 정보',
     price_mktcap:'시가총액', price_vol:'24h 거래량', price_high:'24h 고가', price_low:'24h 저가',
     price_supply:'유통량', price_ath:'역대 최고가', price_chart:'7일 가격 추이',
@@ -1420,7 +1522,7 @@ const I18N = {
     nav_testnet:'TESTNET V2 LIVE',
     tab_home:'Home', tab_badges:'Badges', tab_ranking:'Ranking',
     tab_quiz:'Quiz', tab_predict:'Predict', tab_tx:'TX Race', tab_board:'Board',
-    tab_price:'📈 LOCUS', tab_puzzle:'🧩 Puzzle', tab_arcade:'🕹️ Games', tab_map:'🌍 Node Map',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 Puzzle', tab_arcade:'🕹️ Games', tab_map:'🌍 Node Map', tab_news:'📰 News',
     price_title:'// LOCUS Price', price_sub:'Real-time data via CoinGecko',
     price_mktcap:'Market Cap', price_vol:'24h Volume', price_high:'24h High', price_low:'24h Low',
     price_supply:'Circulating Supply', price_ath:'All-Time High', price_chart:'7-Day Price Trend',
@@ -1458,6 +1560,12 @@ const I18N = {
     map_loading:'🌍 Loading map...',
     continent_america:'Americas', continent_europe:'Europe', continent_asia:'Asia',
     continent_africa:'Africa', continent_oceania:'Oceania',
+    news_sub:'Crypto & Economy Real-time News',
+    news_filter_all:'All', news_filter_crypto:'Crypto', news_filter_economy:'Economy',
+    news_ko_title:'Korean News', news_en_title:'English News', news_ja_title:'Japanese News',
+    news_loading:'Loading news...', news_error:'Failed to load news',
+    news_tag_crypto:'Crypto', news_tag_economy:'Economy', news_tag_locus:'Locus',
+    news_updated:'Updated: ', news_read_more:'Read more →',
     badges_title:'// Badge Collection', badges_sub:'Earn badges through your activities',
     badge_earned:'✓ Earned', badge_locked_prefix:'+',
     ranking_title:'// Leaderboard', ranking_sub:'Ranking by testnet contribution',
@@ -1516,7 +1624,7 @@ const I18N = {
     nav_testnet:'TESTNET V2 稼働中',
     tab_home:'ホーム', tab_badges:'バッジ', tab_ranking:'ランキング',
     tab_quiz:'クイズ', tab_predict:'予測', tab_tx:'TX競争', tab_board:'掲示板',
-    tab_price:'📈 LOCUS', tab_puzzle:'🧩 パズル', tab_arcade:'🕹️ ゲーム', tab_map:'🌍 ノードマップ',
+    tab_price:'📈 LOCUS', tab_puzzle:'🧩 パズル', tab_arcade:'🕹️ ゲーム', tab_map:'🌍 ノードマップ', tab_news:'📰 ニュース',
     price_title:'// LOCUS 価格', price_sub:'CoinGecko リアルタイムデータ',
     price_mktcap:'時価総額', price_vol:'24h 取引量', price_high:'24h 高値', price_low:'24h 安値',
     price_supply:'流通量', price_ath:'過去最高値', price_chart:'7日間の価格推移',
@@ -1554,6 +1662,12 @@ const I18N = {
     map_loading:'🌍 マップ読み込み中...',
     continent_america:'アメリカ大陸', continent_europe:'ヨーロッパ', continent_asia:'アジア',
     continent_africa:'アフリカ', continent_oceania:'オセアニア',
+    news_sub:'クリプト＆経済リアルタイムニュース',
+    news_filter_all:'すべて', news_filter_crypto:'クリプト', news_filter_economy:'経済',
+    news_ko_title:'韓国語ニュース', news_en_title:'英語ニュース', news_ja_title:'日本語ニュース',
+    news_loading:'ニュース読み込み中...', news_error:'ニュースを読み込めませんでした',
+    news_tag_crypto:'クリプト', news_tag_economy:'経済', news_tag_locus:'Locus',
+    news_updated:'更新: ', news_read_more:'続きを読む →',
     badges_title:'// バッジコレクション', badges_sub:'活動を通じてバッジを獲得しよう',
     badge_earned:'✓ 取得済み', badge_locked_prefix:'+',
     ranking_title:'// リーダーボード', ranking_sub:'テストネット貢献度ランキング',
@@ -1735,6 +1849,10 @@ function setLang(l) {
     db.ref('visitors').once('value', snap => {
       renderMap(snap.val() || {}, null);
     });
+  }
+  // 뉴스 — 언어 전환 시 목록 재렌더
+  if (newsInited) {
+    ['ko','en','ja'].forEach(l => renderNewsList(l));
   }
 }
 
@@ -2267,6 +2385,143 @@ function initStats() {
 initStats();
 
 /* ══════════════════════════════════
+/* ══════════════════════════════════
+   NEWS: RSS 피드 뉴스 클리핑
+══════════════════════════════════ */
+let newsInited = false;
+let newsCurrentFilter = 'all';
+let newsData = {ko:[], en:[], ja:[]};
+
+// RSS → JSON 변환 프록시 (무료, 1000회/일)
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+// 뉴스 소스 (각 언어별)
+const NEWS_SOURCES = {
+  ko: [
+    {url:'https://www.blockmedia.co.kr/feed/', name:'블록미디어', cat:'crypto'},
+    {url:'https://www.coindeskkorea.com/feed/', name:'코인데스크코리아', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=암호화폐+비트코인&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=연준+금리+경제+주식&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=Locus+Chain&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'locus'},
+  ],
+  en: [
+    {url:'https://cointelegraph.com/rss', name:'CoinTelegraph', cat:'crypto'},
+    {url:'https://www.coindesk.com/arc/outboundfeeds/rss/', name:'CoinDesk', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=crypto+bitcoin+ethereum&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=federal+reserve+economy+inflation&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=Locus+Chain+blockchain&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'locus'},
+  ],
+  ja: [
+    {url:'https://coinpost.jp/?feed=rss2', name:'CoinPost', cat:'crypto'},
+    {url:'https://jp.cointelegraph.com/rss', name:'CoinTelegraph JP', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=暗号資産+ビットコイン&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=FRB+金利+経済&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'economy'},
+  ],
+};
+
+async function initNews() {
+  newsInited = true;
+  await Promise.all([
+    fetchNewsLang('ko'),
+    fetchNewsLang('en'),
+    fetchNewsLang('ja'),
+  ]);
+  const now = new Date();
+  document.getElementById('news-update-note').textContent =
+    t('news_updated') + now.toLocaleString();
+}
+
+async function fetchNewsLang(langCode) {
+  const sources = NEWS_SOURCES[langCode];
+  const listEl = document.getElementById('news-list-' + langCode);
+  let allItems = [];
+
+  await Promise.allSettled(sources.map(async src => {
+    try {
+      const res = await fetch(RSS2JSON + encodeURIComponent(src.url) + '&count=6');
+      const data = await res.json();
+      if (data.status === 'ok' && data.items) {
+        data.items.forEach(item => {
+          allItems.push({
+            title: item.title,
+            link: item.link,
+            desc: item.description
+              ? item.description.replace(/<[^>]*>/g,'').slice(0,120)
+              : '',
+            pubDate: item.pubDate,
+            source: src.name,
+            cat: src.cat,
+          });
+        });
+      }
+    } catch(e) { /* 개별 소스 실패는 무시 */ }
+  }));
+
+  // 중복 제거 + 날짜순 정렬
+  const seen = new Set();
+  allItems = allItems
+    .filter(item => {
+      if (seen.has(item.title)) return false;
+      seen.add(item.title);
+      return true;
+    })
+    .sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate))
+    .slice(0, 20);
+
+  newsData[langCode] = allItems;
+
+  if (!listEl) return;
+  if (allItems.length === 0) {
+    listEl.innerHTML = `<div class="news-error">${t('news_error')}</div>`;
+    return;
+  }
+  renderNewsList(langCode);
+}
+
+function renderNewsList(langCode) {
+  const listEl = document.getElementById('news-list-' + langCode);
+  if (!listEl) return;
+  const items = newsData[langCode].filter(item => {
+    if (newsCurrentFilter === 'all') return true;
+    return item.cat === newsCurrentFilter;
+  });
+
+  if (items.length === 0) {
+    listEl.innerHTML = `<div class="news-loading" style="color:var(--text3)">—</div>`;
+    return;
+  }
+
+  listEl.innerHTML = items.map(item => {
+    const tagLabel = item.cat === 'crypto' ? t('news_tag_crypto')
+      : item.cat === 'economy' ? t('news_tag_economy')
+      : t('news_tag_locus');
+    const timeStr = item.pubDate
+      ? new Date(item.pubDate).toLocaleDateString(
+          langCode === 'ko' ? 'ko-KR' : langCode === 'ja' ? 'ja-JP' : 'en-US',
+          {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}
+        )
+      : '';
+    return `
+      <a class="news-item" href="${item.link}" target="_blank" rel="noopener">
+        <div class="news-item-header">
+          <span class="news-item-source">${item.source}</span>
+          <span class="news-item-tag ${item.cat}">${tagLabel}</span>
+          <span class="news-item-time">${timeStr}</span>
+        </div>
+        <div class="news-item-title">${item.title}</div>
+        ${item.desc ? `<div class="news-item-desc">${item.desc}</div>` : ''}
+      </a>`;
+  }).join('');
+}
+
+function setNewsFilter(filter, btn) {
+  newsCurrentFilter = filter;
+  document.querySelectorAll('.news-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['ko','en','ja'].forEach(l => renderNewsList(l));
+}
+
+/* ══════════════════════════════════
    NODE MAP: IP 기반 국가 감지
 ══════════════════════════════════ */
 let mapInited = false;
@@ -2570,6 +2825,7 @@ window.switchTab = function(tab, btn) {
   if (tab === 'puzzle' && !puzzleInited) initPuzzle();
   if (tab === 'board' && !boardListenerAttached) initPosts();
   if (tab === 'map' && !mapInited) initMap();
+  if (tab === 'news' && !newsInited) initNews();
 };
 
 /* ══════════════════════════════════
