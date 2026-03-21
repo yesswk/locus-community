@@ -2300,20 +2300,71 @@ function renderPosts() {
   }).join('');
 }
 
+// 게시판 도배 방지 — 마지막 게시 시각 추적
+let lastPostTime = 0;
+const POST_COOLDOWN_MS = 60 * 1000; // 1분
+
 function submitPost() {
-  if (!connected) return;
+  if (!connected) {
+    showToast(lang==='ja'?'ウォレットを接続してください':lang==='en'?'Please connect your wallet':'지갑을 먼저 연결해주세요', 'error');
+    return;
+  }
+
   const input = document.getElementById('post-input');
   const text = input.value.trim();
-  if (!text || text.length > 120) return;
+
+  // 빈 글 / 길이 초과 체크
+  if (!text) return;
+  if (text.length > 120) {
+    showToast(lang==='ja'?'120文字以内で入力してください':lang==='en'?'Maximum 120 characters':'120자 이내로 입력해주세요', 'error');
+    return;
+  }
+
+  // 최소 글자 수 체크 (5자 이상)
+  if (text.length < 5) {
+    showToast(lang==='ja'?'5文字以上入力してください':lang==='en'?'Please enter at least 5 characters':'5자 이상 입력해주세요', 'error');
+    return;
+  }
+
+  // rate limit — 1분에 1개
+  const now = Date.now();
+  const remaining = Math.ceil((POST_COOLDOWN_MS - (now - lastPostTime)) / 1000);
+  if (now - lastPostTime < POST_COOLDOWN_MS) {
+    showToast(
+      lang==='ja' ? `${remaining}秒後に投稿できます`
+      : lang==='en' ? `Please wait ${remaining} seconds`
+      : `${remaining}초 후에 게시할 수 있습니다`,
+      'error'
+    );
+    return;
+  }
+
+  // URL 포함 글 차단 (피싱 방지)
+  const urlPattern = /https?:\/\/|www\./i;
+  if (urlPattern.test(text)) {
+    showToast(
+      lang==='ja' ? 'URLを含む投稿はできません'
+      : lang==='en' ? 'Links are not allowed in posts'
+      : '링크가 포함된 게시글은 작성할 수 없습니다',
+      'error'
+    );
+    return;
+  }
+
   const icon = myBadges.length > 0 ? BADGE_ICONS[BADGE_IDS.indexOf(myBadges[0])] || '⬡' : '⬡';
+
+  // 게시 버튼 비활성화
+  const submitBtn = document.querySelector('.post-submit');
+  if (submitBtn) submitBtn.disabled = true;
 
   // Firebase에 저장
   db.ref('posts').push({
     author: address,
     badge: icon,
     title: text,
-    ts: Date.now()
+    ts: now
   }).then(() => {
+    lastPostTime = now;
     postCount++;
     if (postCount >= 5 && !myBadges.includes('educator')) {
       myBadges.push('educator'); myPoints += 150;
@@ -2323,8 +2374,30 @@ function submitPost() {
     }
     saveUserData();
     input.value = '';
+
+    // 쿨다운 동안 버튼에 타이머 표시
+    if (submitBtn) {
+      let sec = Math.ceil(POST_COOLDOWN_MS / 1000);
+      submitBtn.textContent = `${sec}s`;
+      const coolTimer = setInterval(() => {
+        sec--;
+        if (sec <= 0) {
+          clearInterval(coolTimer);
+          submitBtn.disabled = false;
+          submitBtn.textContent = t('board_submit');
+        } else {
+          submitBtn.textContent = `${sec}s`;
+        }
+      }, 1000);
+    }
   }).catch(err => {
-    showToast('저장 실패: ' + err.message, 'error');
+    if (submitBtn) submitBtn.disabled = false;
+    showToast(
+      lang==='ja' ? '投稿に失敗しました'
+      : lang==='en' ? 'Post failed'
+      : '게시 실패: ' + err.message,
+      'error'
+    );
   });
 }
 
