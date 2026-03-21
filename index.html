@@ -358,8 +358,8 @@ const db = firebase.database();
       </div>
     </div>
     <div class="stats-bar">
-      <div class="stat-item"><span class="stat-num" id="stat-members">0</span><div class="stat-label" data-i18n="stat_members">참여 홀더</div></div>
-      <div class="stat-item"><span class="stat-num" id="stat-badges">0</span><div class="stat-label" data-i18n="stat_badges">발급된 배지</div></div>
+      <div class="stat-item"><span class="stat-num" id="stat-members" style="font-size:18px" data-i18n="stat_members_soon">모집 중</span><div class="stat-label" data-i18n="stat_members">참여 홀더</div></div>
+      <div class="stat-item"><span class="stat-num" id="stat-badges" style="font-size:18px" data-i18n="stat_badges_soon">곧 시작</span><div class="stat-label" data-i18n="stat_badges">발급된 배지</div></div>
       <div class="stat-item"><span class="stat-num">2M+</span><div class="stat-label" data-i18n="stat_txs">테스트넷 트랜잭션</div></div>
     </div>
   </div>
@@ -713,6 +713,7 @@ const I18N = {
     btn_claim:'✦ 테스트넷 참여 배지 발급',
     btn_claim_done:'✓ Genesis 배지 보유 중',
     stat_members:'참여 홀더', stat_badges:'발급된 배지', stat_txs:'테스트넷 트랜잭션',
+    stat_members_soon:'모집 중', stat_badges_soon:'곧 시작',
     badges_title:'// 배지 컬렉션', badges_sub:'활동을 통해 배지를 획득하세요',
     badge_earned:'✓ 획득', badge_locked_prefix:'+',
     ranking_title:'// 리더보드', ranking_sub:'테스트넷 기여도 순위',
@@ -815,6 +816,7 @@ const I18N = {
     btn_claim:'✦ Claim Testnet Badge',
     btn_claim_done:'✓ Genesis Badge Owned',
     stat_members:'Participants', stat_badges:'Badges Issued', stat_txs:'Testnet Transactions',
+    stat_members_soon:'Coming Soon', stat_badges_soon:'Coming Soon',
     badges_title:'// Badge Collection', badges_sub:'Earn badges through your activities',
     badge_earned:'✓ Earned', badge_locked_prefix:'+',
     ranking_title:'// Leaderboard', ranking_sub:'Ranking by testnet contribution',
@@ -901,6 +903,7 @@ const I18N = {
     btn_claim:'✦ テストネット参加バッジを取得',
     btn_claim_done:'✓ Genesisバッジ取得済み',
     stat_members:'参加ホルダー', stat_badges:'発行バッジ数', stat_txs:'テストネットTX',
+    stat_members_soon:'募集中', stat_badges_soon:'まもなく開始',
     badges_title:'// バッジコレクション', badges_sub:'活動を通じてバッジを獲得しよう',
     badge_earned:'✓ 取得済み', badge_locked_prefix:'+',
     ranking_title:'// リーダーボード', ranking_sub:'テストネット貢献度ランキング',
@@ -1595,14 +1598,14 @@ function initStats() {
     const data = snap.val();
     const count = data ? Object.keys(data).length : 0;
     const el = document.getElementById('stat-members');
-    if (el) el.textContent = count.toLocaleString();
+    if (el) el.textContent = count > 0 ? count.toLocaleString() : t('stat_members_soon');
   });
 
-  // 발급된 배지 수 — badges 경로에 누적 저장
+  // 발급된 배지 수 — stats/total_badges 누적값
   db.ref('stats/total_badges').on('value', snap => {
     const count = snap.val() || 0;
     const el = document.getElementById('stat-badges');
-    if (el) el.textContent = count.toLocaleString();
+    if (el) el.textContent = count > 0 ? count.toLocaleString() : t('stat_badges_soon');
   });
 }
 initStats();
