@@ -627,7 +627,11 @@ const db = firebase.database();
 
     <!-- 상단 통계 -->
     <div class="map-stats-bar">
-      <div class="map-stat"><span class="map-stat-num" id="map-total">—</span><div class="map-stat-label" data-i18n="map_total">총 방문자</div></div>
+      <div class="map-stat">
+        <span class="map-stat-num online-pulse" id="map-online">—</span>
+        <div class="map-stat-label" data-i18n="map_online">🟢 실시간 접속</div>
+      </div>
+      <div class="map-stat"><span class="map-stat-num" id="map-total">—</span><div class="map-stat-label" data-i18n="map_total">누적 연결 홀더</div></div>
       <div class="map-stat"><span class="map-stat-num" id="map-countries">—</span><div class="map-stat-label" data-i18n="map_countries">참여 국가</div></div>
       <div class="map-stat"><span class="map-stat-num" id="map-top-country">—</span><div class="map-stat-label" data-i18n="map_top">최다 참여국</div></div>
     </div>
@@ -656,9 +660,13 @@ const db = firebase.database();
 
 <style>
 /* ══ MAP ══ */
-.map-stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.map-stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.online-pulse{color:var(--accent3) !important;animation:onlinePulse 2s ease-in-out infinite}
+@keyframes onlinePulse{0%,100%{opacity:1}50%{opacity:.6}}
 .map-stat{background:var(--surface);padding:20px;text-align:center}
 .map-stat-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);display:block}
+.map-stat-num.online-pulse{color:var(--accent3);animation:onlinePulse 2s ease-in-out infinite}
+@keyframes onlinePulse{0%,100%{opacity:1}50%{opacity:.6}}
 .map-stat-label{font-size:12px;color:var(--text2);margin-top:3px}
 .map-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;min-height:380px;position:relative}
 /* Leaflet 팝업 다크 테마 */
@@ -680,7 +688,7 @@ const db = firebase.database();
 .map-my-location{display:flex;align-items:center;gap:10px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;font-size:14px}
 .map-my-flag{font-size:24px}
 .map-note{font-size:11px;color:var(--text3);font-family:var(--mono)}
-@media(max-width:600px){.map-stats-bar{grid-template-columns:1fr}.map-country-bar-wrap{width:70px}}
+@media(max-width:600px){.map-stats-bar{grid-template-columns:repeat(2,1fr)}.map-country-bar-wrap{width:70px}}
 </style>
 
 <!-- ══════════ PRICE ══════════ -->
@@ -1444,7 +1452,7 @@ const I18N = {
     stat_members:'참여 홀더', stat_badges:'발급된 배지', stat_txs:'테스트넷 트랜잭션',
     stat_members_soon:'모집 중', stat_badges_soon:'곧 시작',
     map_sub:'Locus Wallet 연결 홀더 국가 분포 (노드 운영자와 다를 수 있음)',
-    map_total:'연결 홀더', map_countries:'참여 국가', map_top:'최다 참여국',
+    map_online:'🟢 실시간 접속', map_total:'누적 연결 홀더', map_countries:'참여 국가', map_top:'최다 참여국',
     map_ranking:'🏆 국가별 참여 순위',
     map_my_loc:'내 접속 국가',
     map_note:'* 지갑 연결 홀더 기준 집계. 노드 운영 여부와 다를 수 있으며 VPN 사용 시 실제 위치와 다를 수 있습니다.',
@@ -1562,7 +1570,7 @@ const I18N = {
     stat_members:'Participants', stat_badges:'Badges Issued', stat_txs:'Testnet Transactions',
     stat_members_soon:'Coming Soon', stat_badges_soon:'Coming Soon',
     map_sub:'Locus Wallet holder distribution by country (may differ from node operators)',
-    map_total:'Connected Holders', map_countries:'Countries', map_top:'Top Country',
+    map_online:'🟢 Online Now', map_total:'Total Holders', map_countries:'Countries', map_top:'Top Country',
     map_ranking:'🏆 Country Ranking',
     map_my_loc:'Your location',
     map_note:'* Based on connected wallet holders. May differ from actual node operators. VPN may affect location accuracy.',
@@ -1664,7 +1672,7 @@ const I18N = {
     stat_members:'参加ホルダー', stat_badges:'発行バッジ数', stat_txs:'テストネットTX',
     stat_members_soon:'募集中', stat_badges_soon:'まもなく開始',
     map_sub:'Locus Walletホルダーの国別分布（ノード運営者と異なる場合あり）',
-    map_total:'接続ホルダー', map_countries:'参加国', map_top:'最多参加国',
+    map_online:'🟢 リアルタイム接続', map_total:'累計接続ホルダー', map_countries:'参加国', map_top:'最多参加国',
     map_ranking:'🏆 国別参加ランキング',
     map_my_loc:'あなたの接続国',
     map_note:'* ウォレット接続ホルダー基準の集計。ノード運営状況とは異なる場合があります。VPN使用時は位置が異なる場合があります。',
@@ -2021,8 +2029,29 @@ function onConnected(addr) {
   renderBadges(); renderLeaderboard(); renderPosts();
   showToast(t('toast_connected'), 'success');
 
-  // 지갑 연결 시 IP로 국가 감지 → Firebase에 홀더로 등록
+  // 지갑 연결 시 IP 국가 감지 → 누적 홀더 저장
   detectAndSaveHolderCountry(addr);
+
+  // 실시간 접속자 Presence 등록
+  registerPresence(addr);
+}
+
+function registerPresence(addr) {
+  const safeAddr = addr.replace(/[.#$\[\]]/g, '_');
+  const presenceRef = db.ref('presence/' + safeAddr);
+
+  // 접속 시 등록
+  presenceRef.set({ addr, ts: Date.now() });
+
+  // 탭 닫히거나 연결 끊기면 자동 삭제
+  presenceRef.onDisconnect().remove();
+
+  // 실시간 접속자 수 구독 (이미 mapInited면 지도에 반영)
+  db.ref('presence').on('value', snap => {
+    const count = snap.val() ? Object.keys(snap.val()).length : 0;
+    const el = document.getElementById('map-online');
+    if (el) el.textContent = count;
+  });
 }
 
 async function detectAndSaveHolderCountry(addr) {
@@ -2794,7 +2823,6 @@ const COUNTRY_POS = {
 async function initMap() {
   mapInited = true;
 
-  // 이미 지갑 연결 시 감지된 국가가 있으면 내 위치 표시
   if (myDetectedCountry) {
     const myEl   = document.getElementById('map-my-location');
     const myFlag = document.getElementById('map-my-flag');
@@ -2802,11 +2830,20 @@ async function initMap() {
     if (myEl) {
       myEl.style.display = 'flex';
       if (myFlag) myFlag.textContent = countryFlag(myDetectedCountry);
-      if (myText) myText.textContent = `${t('map_my_loc')}: ${getCountryName(myDetectedCountry)}`;
+      if (myText) myText.textContent = t('map_my_loc') + ': ' + getCountryName(myDetectedCountry);
     }
   }
 
-  // Firebase 실시간 구독 — 홀더 접속 국가 데이터
+  // 실시간 접속자 수 — Firebase Presence
+  const presenceRef = db.ref('presence/' + Math.random().toString(36).slice(2));
+  presenceRef.onDisconnect().remove();
+  presenceRef.set({ ts: Date.now(), country: myDetectedCountry || 'XX' });
+  db.ref('presence').on('value', snap => {
+    const el = document.getElementById('map-online');
+    if (el) el.textContent = snap.numChildren();
+  });
+
+  // 누적 홀더 국가 데이터 구독
   db.ref('visitors').on('value', snap => {
     const data = snap.val() || {};
     renderMap(data, myDetectedCountry);
