@@ -523,10 +523,10 @@ const db = firebase.database();
 
     <!-- 카테고리 필터 -->
     <div class="news-filters">
-      <button class="news-filter-btn active" onclick="setNewsFilter('all',this)" data-i18n="news_filter_all">전체</button>
-      <button class="news-filter-btn" onclick="setNewsFilter('crypto',this)" data-i18n="news_filter_crypto">크립토</button>
-      <button class="news-filter-btn" onclick="setNewsFilter('economy',this)" data-i18n="news_filter_economy">경제</button>
-      <button class="news-filter-btn" onclick="setNewsFilter('locus',this)">Locus</button>
+      <button class="news-filter-btn active" data-filter="all" data-i18n="news_filter_all">전체</button>
+      <button class="news-filter-btn" data-filter="crypto" data-i18n="news_filter_crypto">크립토</button>
+      <button class="news-filter-btn" data-filter="economy" data-i18n="news_filter_economy">경제</button>
+      <button class="news-filter-btn" data-filter="locus">Locus</button>
     </div>
 
     <!-- 언어별 뉴스 섹션 -->
@@ -574,8 +574,8 @@ const db = firebase.database();
 
 <style>
 /* ══ NEWS ══ */
-.news-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.news-filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text2);cursor:pointer;transition:all .18s;text-transform:uppercase}
+.news-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;position:relative;z-index:1}
+.news-filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text2);cursor:pointer;transition:all .18s;text-transform:uppercase;position:relative;z-index:2;-webkit-tap-highlight-color:transparent}
 .news-filter-btn:hover{border-color:rgba(0,212,255,.3);color:var(--text)}
 .news-filter-btn.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--accent)}
 
@@ -2591,8 +2591,17 @@ function setNewsFilter(filter, btn) {
   newsCurrentFilter = filter;
   document.querySelectorAll('.news-filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  if (!newsInited) { initNews(); return; }
   ['ko','en','ja'].forEach(l => renderNewsList(l));
 }
+
+// 이벤트 위임 — 탭 패널에 한 번만 등록
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.news-filter-btn');
+  if (!btn) return;
+  const filter = btn.getAttribute('data-filter');
+  if (filter) setNewsFilter(filter, btn);
+});
 
 /* ══════════════════════════════════
    NODE MAP: IP 기반 국가 감지
