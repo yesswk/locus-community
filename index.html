@@ -6,6 +6,8 @@
 <title>LOCUS NODE — Testnet Community</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root {
     --bg:#050810; --surface:#0d1220; --surface2:#141928; --border:#1e2a40;
@@ -620,7 +622,7 @@ const db = firebase.database();
   <div class="container">
     <div class="section-header">
       <div class="section-title" data-i18n="tab_map">🌍 노드맵</div>
-      <div class="section-sub" id="map-sub" data-i18n="map_sub">커뮤니티 방문자 국가 분포 (IP 기반)</div>
+      <div class="section-sub" id="map-sub" data-i18n="map_sub">Locus Wallet 연결 홀더 국가 분포 (노드 운영자와 다를 수 있음)</div>
     </div>
 
     <!-- 상단 통계 -->
@@ -631,13 +633,9 @@ const db = firebase.database();
     </div>
 
     <!-- SVG 세계지도 -->
-    <div class="map-wrap">
+    <div class="map-wrap" style="padding:0;min-height:380px">
       <div class="map-loading" id="map-loading" data-i18n="map_loading">🌍 지도 로딩 중...</div>
-      <svg id="world-map" viewBox="0 0 1000 500" style="width:100%;display:none">
-        <!-- 간략화된 주요 국가 윤곽 -->
-      </svg>
-      <!-- Leaflet 지도 대신 Canvas 기반 도트맵 -->
-      <canvas id="map-canvas" width="900" height="440" style="width:100%;border-radius:12px;display:none"></canvas>
+      <div id="leaflet-map" style="width:100%;height:380px;border-radius:16px;display:none"></div>
     </div>
 
     <!-- 국가별 순위 -->
@@ -652,7 +650,7 @@ const db = firebase.database();
       <span id="map-my-text"></span>
     </div>
 
-    <div class="map-note" data-i18n="map_note">* IP 기반 국가 감지. VPN 사용 시 실제 위치와 다를 수 있습니다.</div>
+    <div class="map-note" data-i18n="map_note">* 지갑 연결 홀더 기준 집계. 노드 운영 여부와 다를 수 있으며 VPN 사용 시 실제 위치와 다를 수 있습니다.</div>
   </div>
 </div>
 
@@ -662,7 +660,12 @@ const db = firebase.database();
 .map-stat{background:var(--surface);padding:20px;text-align:center}
 .map-stat-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent);display:block}
 .map-stat-label{font-size:12px;color:var(--text2);margin-top:3px}
-.map-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;min-height:200px;display:flex;align-items:center;justify-content:center;padding:16px;position:relative}
+.map-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;min-height:380px;position:relative}
+/* Leaflet 팝업 다크 테마 */
+.leaflet-popup-content-wrapper{background:#0d1220;color:#e8eaf0;border:1px solid #1e2a40;border-radius:10px}
+.leaflet-popup-tip{background:#0d1220}
+.leaflet-popup-close-button{color:#8892a4}
+@keyframes mapPulse{0%,100%{box-shadow:0 0 18px rgba(0,255,157,0.4),0 0 6px #00ff9d}50%{box-shadow:0 0 32px rgba(0,255,157,0.7),0 0 12px #00ff9d}}
 .map-loading{font-family:var(--mono);font-size:14px;color:var(--text2);animation:pulse 2s ease-in-out infinite}
 .map-ranking-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
 .map-ranking-title{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:14px}
@@ -1440,11 +1443,11 @@ const I18N = {
     btn_claim_done:'✓ Genesis 배지 보유 중',
     stat_members:'참여 홀더', stat_badges:'발급된 배지', stat_txs:'테스트넷 트랜잭션',
     stat_members_soon:'모집 중', stat_badges_soon:'곧 시작',
-    map_sub:'커뮤니티 방문자 국가 분포 (IP 기반)',
-    map_total:'총 방문자', map_countries:'참여 국가', map_top:'최다 참여국',
+    map_sub:'Locus Wallet 연결 홀더 국가 분포 (노드 운영자와 다를 수 있음)',
+    map_total:'연결 홀더', map_countries:'참여 국가', map_top:'최다 참여국',
     map_ranking:'🏆 국가별 참여 순위',
     map_my_loc:'내 접속 국가',
-    map_note:'* IP 기반 국가 감지. VPN 사용 시 실제 위치와 다를 수 있습니다.',
+    map_note:'* 지갑 연결 홀더 기준 집계. 노드 운영 여부와 다를 수 있으며 VPN 사용 시 실제 위치와 다를 수 있습니다.',
     map_legend_me:'● 내 위치', map_legend_top:'● 최다 참여국',
     map_loading:'🌍 지도 로딩 중...',
     continent_america:'아메리카', continent_europe:'유럽', continent_asia:'아시아',
@@ -1558,11 +1561,11 @@ const I18N = {
     btn_claim_done:'✓ Genesis Badge Owned',
     stat_members:'Participants', stat_badges:'Badges Issued', stat_txs:'Testnet Transactions',
     stat_members_soon:'Coming Soon', stat_badges_soon:'Coming Soon',
-    map_sub:'Community visitor distribution by country (IP-based)',
-    map_total:'Total Visitors', map_countries:'Countries', map_top:'Top Country',
+    map_sub:'Locus Wallet holder distribution by country (may differ from node operators)',
+    map_total:'Connected Holders', map_countries:'Countries', map_top:'Top Country',
     map_ranking:'🏆 Country Ranking',
     map_my_loc:'Your location',
-    map_note:'* Country detected via IP address. May differ if using VPN.',
+    map_note:'* Based on connected wallet holders. May differ from actual node operators. VPN may affect location accuracy.',
     map_legend_me:'● My Location', map_legend_top:'● Top Country',
     map_loading:'🌍 Loading map...',
     continent_america:'Americas', continent_europe:'Europe', continent_asia:'Asia',
@@ -1660,11 +1663,11 @@ const I18N = {
     btn_claim_done:'✓ Genesisバッジ取得済み',
     stat_members:'参加ホルダー', stat_badges:'発行バッジ数', stat_txs:'テストネットTX',
     stat_members_soon:'募集中', stat_badges_soon:'まもなく開始',
-    map_sub:'コミュニティ訪問者の国別分布（IP基準）',
-    map_total:'総訪問者', map_countries:'参加国', map_top:'最多参加国',
+    map_sub:'Locus Walletホルダーの国別分布（ノード運営者と異なる場合あり）',
+    map_total:'接続ホルダー', map_countries:'参加国', map_top:'最多参加国',
     map_ranking:'🏆 国別参加ランキング',
     map_my_loc:'あなたの接続国',
-    map_note:'* IPアドレスで国を検出。VPN使用時は実際の場所と異なる場合があります。',
+    map_note:'* ウォレット接続ホルダー基準の集計。ノード運営状況とは異なる場合があります。VPN使用時は位置が異なる場合があります。',
     map_legend_me:'● 自分の位置', map_legend_top:'● 最多参加国',
     map_loading:'🌍 マップ読み込み中...',
     continent_america:'アメリカ大陸', continent_europe:'ヨーロッパ', continent_asia:'アジア',
@@ -2017,6 +2020,54 @@ function onConnected(addr) {
   loadUserData();
   renderBadges(); renderLeaderboard(); renderPosts();
   showToast(t('toast_connected'), 'success');
+
+  // 지갑 연결 시 IP로 국가 감지 → Firebase에 홀더로 등록
+  detectAndSaveHolderCountry(addr);
+}
+
+async function detectAndSaveHolderCountry(addr) {
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    if (!data.country_code) return;
+    myDetectedCountry = data.country_code;
+
+    // 지갑 주소 기준으로 저장 (중복 방지 — 같은 지갑은 1회만 카운트)
+    const safeAddr = addr.replace(/[.#$\[\]]/g, '_');
+    const holderRef = db.ref('holders/' + safeAddr);
+
+    holderRef.once('value', snap => {
+      const existing = snap.val();
+      if (!existing) {
+        // 최초 연결 — 새로 저장
+        holderRef.set({
+          addr: addr,
+          country: myDetectedCountry,
+          ts: Date.now()
+        });
+        // 국가 카운터 +1
+        db.ref('visitors/' + myDetectedCountry).transaction(cur => (cur || 0) + 1);
+      } else if (existing.country !== myDetectedCountry) {
+        // 이전과 다른 국가에서 접속 — 기존 카운터 -1, 새 카운터 +1
+        db.ref('visitors/' + existing.country).transaction(cur => Math.max(0, (cur || 1) - 1));
+        db.ref('visitors/' + myDetectedCountry).transaction(cur => (cur || 0) + 1);
+        holderRef.update({ country: myDetectedCountry, ts: Date.now() });
+      }
+      // 이미 같은 국가면 카운터 변화 없음
+
+      // 내 위치 표시 업데이트
+      const myEl   = document.getElementById('map-my-location');
+      const myFlag = document.getElementById('map-my-flag');
+      const myText = document.getElementById('map-my-text');
+      if (myEl) {
+        myEl.style.display = 'flex';
+        if (myFlag) myFlag.textContent = countryFlag(myDetectedCountry);
+        if (myText) myText.textContent = `${t('map_my_loc')}: ${getCountryName(myDetectedCountry)}`;
+      }
+    });
+  } catch(e) {
+    console.warn('Country detect failed:', e);
+  }
 }
 
 function loadUserData() {
@@ -2743,142 +2794,147 @@ const COUNTRY_POS = {
 async function initMap() {
   mapInited = true;
 
-  // 1. 내 IP 국가 감지
-  try {
-    const res = await fetch('https://ipapi.co/json/');
-    const data = await res.json();
-    myDetectedCountry = data.country_code;
-
-    // 내 위치 표시
-    const myEl = document.getElementById('map-my-location');
+  // 이미 지갑 연결 시 감지된 국가가 있으면 내 위치 표시
+  if (myDetectedCountry) {
+    const myEl   = document.getElementById('map-my-location');
     const myFlag = document.getElementById('map-my-flag');
     const myText = document.getElementById('map-my-text');
-    if (myEl && myDetectedCountry) {
+    if (myEl) {
       myEl.style.display = 'flex';
-      myFlag.textContent = countryFlag(myDetectedCountry);
-      myText.textContent = `${t('map_my_loc')}: ${getCountryName(myDetectedCountry)}`;
+      if (myFlag) myFlag.textContent = countryFlag(myDetectedCountry);
+      if (myText) myText.textContent = `${t('map_my_loc')}: ${getCountryName(myDetectedCountry)}`;
     }
-
-    // Firebase에 방문자 국가 저장
-    if (myDetectedCountry) {
-      db.ref('visitors/' + myDetectedCountry).transaction(cur => (cur || 0) + 1);
-    }
-  } catch(e) {
-    console.warn('IP detect failed:', e);
   }
 
-  // 2. Firebase에서 전체 방문자 국가 데이터 구독
+  // Firebase 실시간 구독 — 홀더 접속 국가 데이터
   db.ref('visitors').on('value', snap => {
     const data = snap.val() || {};
     renderMap(data, myDetectedCountry);
   });
 }
 
+var leafletMap = null;
+var leafletMarkers = [];
+
 function renderMap(data, myCountry) {
   const entries = Object.entries(data).sort((a,b) => b[1]-a[1]);
-  const total = entries.reduce((s,[,v]) => s+v, 0);
+  const total   = entries.reduce((s,[,v]) => s+v, 0);
   const countries = entries.length;
   const topCountry = entries[0] ? getCountryName(entries[0][0]) : '—';
 
   // 통계 업데이트
-  document.getElementById('map-total').textContent = total.toLocaleString();
+  document.getElementById('map-total').textContent    = total.toLocaleString();
   document.getElementById('map-countries').textContent = countries;
   document.getElementById('map-top-country').textContent = topCountry;
 
-  // 캔버스 지도 그리기
-  const canvas = document.getElementById('map-canvas');
   const loading = document.getElementById('map-loading');
-  canvas.style.display = 'block';
+  const mapDiv  = document.getElementById('leaflet-map');
+  if (!mapDiv) return;
+
   loading.style.display = 'none';
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  mapDiv.style.display  = 'block';
 
-  ctx.clearRect(0,0,W,H);
+  // Leaflet 지도 초기화 (최초 1회)
+  if (!leafletMap) {
+    leafletMap = L.map('leaflet-map', {
+      center: [20, 10],
+      zoom: 2,
+      minZoom: 1,
+      maxZoom: 5,
+      zoomControl: true,
+      attributionControl: true,
+    });
 
-  // 배경
-  ctx.fillStyle = '#0a1628';
-  ctx.fillRect(0,0,W,H);
+    // 다크 테마 타일
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 5,
+    }).addTo(leafletMap);
+  }
 
-  // 그리드 라인 (위도/경도 느낌)
-  ctx.strokeStyle = 'rgba(0,212,255,0.06)';
-  ctx.lineWidth = 0.5;
-  for(let x=0;x<W;x+=90) { ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
-  for(let y=0;y<H;y+=88) { ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+  // 기존 마커 제거
+  leafletMarkers.forEach(m => leafletMap.removeLayer(m));
+  leafletMarkers = [];
 
-  // 대륙 윤곽 (단순 사각형 블록으로 표현)
-  const continents = [
-    {x:60,y:80,w:280,h:240,c:'rgba(0,212,255,0.04)',label:t('continent_america')},
-    {x:430,y:80,w:130,h:200,c:'rgba(0,212,255,0.04)',label:t('continent_europe')},
-    {x:540,y:80,w:200,h:220,c:'rgba(0,212,255,0.04)',label:t('continent_asia')},
-    {x:430,y:200,w:130,h:200,c:'rgba(0,212,255,0.04)',label:t('continent_africa')},
-    {x:700,y:280,w:160,h:120,c:'rgba(0,212,255,0.04)',label:t('continent_oceania')},
-  ];
-  continents.forEach(c => {
-    ctx.fillStyle = c.c;
-    ctx.strokeStyle = 'rgba(0,212,255,0.08)';
-    ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.roundRect(c.x,c.y,c.w,c.h,8);
-    ctx.fill(); ctx.stroke();
-  });
+  if (entries.length === 0) return;
 
-  const maxVal = entries[0]?.[1] || 1;
+  const maxVal = entries[0][1] || 1;
 
-  // 국가 도트 렌더링
+  // 국가 좌표 (위도/경도)
+  const LATLNG = {
+    KR:[37.5,127.0], JP:[35.7,139.7], US:[38.0,-97.0], CN:[35.0,105.0],
+    DE:[51.2,10.5],  GB:[51.5,-0.1],  FR:[46.2,2.2],   SG:[1.3,103.8],
+    AU:[-25.3,133.8],CA:[56.1,-106.3],IN:[20.6,78.9],   BR:[-14.2,-51.9],
+    RU:[61.5,105.3], TH:[15.9,100.9], VN:[16.1,107.8],  ID:[-0.8,113.9],
+    MY:[4.2,101.9],  PH:[12.9,121.8], TR:[38.9,35.2],   NG:[9.1,8.7],
+    IT:[41.9,12.6],  ES:[40.5,-3.7],  NL:[52.1,5.3],    SE:[60.1,18.6],
+    PL:[52.0,19.1],  UA:[48.4,31.2],  ZA:[-30.6,22.9],  MX:[23.6,-102.6],
+    AR:[-38.4,-63.6],EG:[26.8,30.8],  SA:[23.9,45.1],   AE:[23.4,53.8],
+    HK:[22.3,114.2], TW:[23.7,121.0], TH:[15.9,100.9],
+  };
+
   entries.forEach(([code, count]) => {
-    const pos = COUNTRY_POS[code];
-    if (!pos) return;
-    const ratio = count / maxVal;
-    const radius = Math.max(6, Math.min(28, 6 + ratio * 22));
-    const isMe = code === myCountry;
-    const isTop = code === entries[0]?.[0];
+    const ll = LATLNG[code];
+    if (!ll) return;
 
-    // 글로우 효과
-    const gradient = ctx.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,radius*2);
-    gradient.addColorStop(0, isMe ? 'rgba(0,255,157,0.3)' : isTop ? 'rgba(255,215,0,0.25)' : 'rgba(0,212,255,0.2)');
-    gradient.addColorStop(1, 'transparent');
-    ctx.fillStyle = gradient;
-    ctx.beginPath(); ctx.arc(pos.x,pos.y,radius*2,0,Math.PI*2); ctx.fill();
+    const ratio  = count / maxVal;
+    const size   = Math.max(18, Math.min(52, 18 + ratio * 34));
+    const isMe   = code === myCountry;
+    const isTop  = code === entries[0]?.[0];
 
-    // 도트
-    ctx.beginPath(); ctx.arc(pos.x,pos.y,radius,0,Math.PI*2);
-    ctx.fillStyle = isMe ? '#00ff9d' : isTop ? '#ffd700' : '#00d4ff';
-    ctx.fill();
+    const color  = isMe ? '#00ff9d' : isTop ? '#ffd700' : '#00d4ff';
+    const border = isMe ? '#00ff9d' : isTop ? '#ffd700' : 'rgba(0,212,255,0.6)';
+    const glow   = isMe ? 'rgba(0,255,157,0.4)' : isTop ? 'rgba(255,215,0,0.3)' : 'rgba(0,212,255,0.2)';
 
-    // 내 위치 펄스 링
-    if (isMe) {
-      ctx.beginPath(); ctx.arc(pos.x,pos.y,radius+5,0,Math.PI*2);
-      ctx.strokeStyle = 'rgba(0,255,157,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
-    }
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:${size}px;height:${size}px;
+        background:${color};
+        border:2px solid ${border};
+        border-radius:50%;
+        box-shadow:0 0 ${size}px ${glow}, 0 0 6px ${color};
+        display:flex;align-items:center;justify-content:center;
+        font-size:${Math.max(8,size*0.32)}px;
+        font-weight:700;font-family:monospace;
+        color:#000;
+        cursor:pointer;
+        ${isMe ? 'animation:mapPulse 1.5s ease-in-out infinite;' : ''}
+      ">${count}</div>`,
+      iconSize:   [size, size],
+      iconAnchor: [size/2, size/2],
+    });
 
-    // 국기 + 수치 레이블
-    ctx.font = `${Math.max(10, radius*0.7)}px serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(countryFlag(code), pos.x, pos.y - radius - 4);
-    ctx.font = '9px monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.fillText(count, pos.x, pos.y + radius + 10);
+    const popup = `
+      <div style="font-family:monospace;font-size:12px;min-width:120px">
+        <div style="font-size:20px;text-align:center">${countryFlag(code)}</div>
+        <div style="font-weight:700;text-align:center;margin:4px 0">${getCountryName(code)}</div>
+        <div style="color:#888;text-align:center">${count} ${lang==='ja'?'人':lang==='en'?'holders':'명'}</div>
+        ${isMe ? '<div style="color:#00ff9d;text-align:center;margin-top:4px">📍 ' + t('map_my_loc') + '</div>' : ''}
+      </div>`;
+
+    const marker = L.marker(ll, {icon}).addTo(leafletMap);
+    marker.bindPopup(popup);
+    leafletMarkers.push(marker);
   });
 
-  // 범례
-  ctx.font = '10px monospace';
-  ctx.fillStyle = 'rgba(0,255,157,0.8)';
-  ctx.textAlign = 'left';
-  ctx.fillText(t('map_legend_me'), 10, H-28);
-  ctx.fillStyle = 'rgba(255,215,0,0.8)';
-  ctx.fillText(t('map_legend_top'), 10, H-14);
+  // 내 위치로 지도 이동
+  if (myCountry && LATLNG[myCountry]) {
+    leafletMap.setView(LATLNG[myCountry], 3);
+  }
 
   // 국가 순위 리스트
   const listEl = document.getElementById('map-country-list');
   if (!listEl) return;
-  const top10 = entries.slice(0, 10);
+  const top10  = entries.slice(0, 10);
+  const maxV   = top10[0]?.[1] || 1;
   listEl.innerHTML = top10.map(([code, count], i) => {
-    const pct = Math.round(count/total*100);
-    const barW = Math.round(count/maxVal*100);
-    const rankSymbol = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+    const barW  = Math.round(count/maxV*100);
+    const rank  = i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
     return `
       <div class="map-country-row">
-        <div class="map-country-rank">${rankSymbol}</div>
+        <div class="map-country-rank">${rank}</div>
         <div class="map-country-flag">${countryFlag(code)}</div>
         <div class="map-country-name">${getCountryName(code)}</div>
         <div class="map-country-bar-wrap">
@@ -2888,7 +2944,6 @@ function renderMap(data, myCountry) {
       </div>`;
   }).join('');
 }
-
 /* ══════════════════════════════════
    PRICE: CoinGecko API
 ══════════════════════════════════ */
