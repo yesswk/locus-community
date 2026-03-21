@@ -2269,7 +2269,7 @@ function submitTx() {
    게시판
 ══════════════════════════════════ */
 let posts = [];
-let boardListenerAttached = false;
+var boardListenerAttached = false;
 
 function initPosts() {
   // Firebase 실시간 리스너 — 게시판 탭 열릴 때 한 번만 등록
@@ -2465,7 +2465,6 @@ function initStats() {
 initStats();
 
 /* ══════════════════════════════════
-/* ══════════════════════════════════
    NEWS: RSS 피드 뉴스 클리핑
 ══════════════════════════════════ */
 // ── 뉴스 상태 변수 (호이스팅을 위해 var 사용) ──
@@ -2650,7 +2649,7 @@ document.addEventListener('click', function(e) {
 /* ══════════════════════════════════
    NODE MAP: IP 기반 국가 감지
 ══════════════════════════════════ */
-let mapInited = false;
+var mapInited = false;
 
 // 국가 코드 → 이모지 플래그
 function countryFlag(code) {
@@ -2854,7 +2853,7 @@ function renderMap(data, myCountry) {
 /* ══════════════════════════════════
    PRICE: CoinGecko API
 ══════════════════════════════════ */
-let priceLoaded = false;
+var priceLoaded = false;
 let priceHistory = [];
 
 async function fetchPrice() {
@@ -2957,7 +2956,7 @@ window.switchTab = function(tab, btn) {
 /* ══════════════════════════════════
    PUZZLE: 커뮤니티 픽셀 퍼즐
 ══════════════════════════════════ */
-let puzzleInited = false;
+var puzzleInited = false;
 let puzzleGrid = [];       // [index] = {color, painter}
 let myPaintedCells = [];   // 내가 칠한 셀 인덱스
 let currentColor = '#5bc8f5';
