@@ -1861,6 +1861,40 @@ function setLang(l) {
   if (newsInited) {
     ['ko','en','ja'].forEach(l => renderNewsList(l));
   }
+
+  // 퀴즈 진행 중이면 현재 문제를 새 언어로 즉시 업데이트
+  const quizGame = document.getElementById('quiz-game');
+  if (quizGame && quizGame.style.display !== 'none') {
+    const q = QUESTIONS[qState.idx];
+    if (q) {
+      // 문제 텍스트
+      document.getElementById('quiz-question').textContent = q.q[lang] || q.q.en;
+      // 문제 번호
+      const total = QUESTIONS.length;
+      document.getElementById('quiz-qnum').textContent =
+        t('quiz_qnum').replace('{cur}', qState.idx+1).replace('{total}', total);
+      // 선택지 텍스트 (버튼 상태 유지하면서 텍스트만 교체)
+      const opts = q.opts[lang] || q.opts.en;
+      const optBtns = document.querySelectorAll('.quiz-option');
+      optBtns.forEach((btn, i) => {
+        if (opts[i]) {
+          // opt-letter span은 유지하고 텍스트만 교체
+          const letter = btn.querySelector('.opt-letter');
+          btn.textContent = '';
+          if (letter) btn.appendChild(letter);
+          btn.appendChild(document.createTextNode(opts[i]));
+        }
+      });
+      // 해설 텍스트 (이미 답한 경우)
+      const expEl = document.getElementById('quiz-explanation');
+      if (expEl && expEl.classList.contains('show')) {
+        expEl.textContent = q.exp[lang] || q.exp.en;
+      }
+      // 다음 문제 버튼
+      const btnNext = document.getElementById('btn-next');
+      if (btnNext) btnNext.textContent = t('quiz_next');
+    }
+  }
 }
 
 /* ══════════════════════════════════
