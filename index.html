@@ -523,10 +523,10 @@ const db = firebase.database();
 
     <!-- 카테고리 필터 -->
     <div class="news-filters">
-      <button class="news-filter-btn active" data-filter="all" data-i18n="news_filter_all">전체</button>
-      <button class="news-filter-btn" data-filter="crypto" data-i18n="news_filter_crypto">크립토</button>
-      <button class="news-filter-btn" data-filter="economy" data-i18n="news_filter_economy">경제</button>
-      <button class="news-filter-btn" data-filter="locus">Locus</button>
+      <button class="news-filter-btn active" data-filter="all" data-i18n="news_filter_all" onclick="if(typeof setNewsFilter==='function')setNewsFilter('all',this)">전체</button>
+      <button class="news-filter-btn" data-filter="crypto" data-i18n="news_filter_crypto" onclick="if(typeof setNewsFilter==='function')setNewsFilter('crypto',this)">크립토</button>
+      <button class="news-filter-btn" data-filter="economy" data-i18n="news_filter_economy" onclick="if(typeof setNewsFilter==='function')setNewsFilter('economy',this)">경제</button>
+      <button class="news-filter-btn" data-filter="locus" onclick="if(typeof setNewsFilter==='function')setNewsFilter('locus',this)">Locus</button>
     </div>
 
     <!-- 언어별 뉴스 섹션 -->
@@ -2468,38 +2468,55 @@ initStats();
 /* ══════════════════════════════════
    NEWS: RSS 피드 뉴스 클리핑
 ══════════════════════════════════ */
-let newsInited = false;
-let newsCurrentFilter = 'all';
-let newsData = {ko:[], en:[], ja:[]};
+// ── 뉴스 상태 변수 (호이스팅을 위해 var 사용) ──
+var newsInited = false;
+var newsCurrentFilter = 'all';
+var newsData = {ko:[], en:[], ja:[]};
+var newsRefreshTimer = null;
 
-// RSS → JSON 변환 프록시 (무료, 1000회/일)
-const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+// RSS → JSON 변환 — allorigins 프록시 (CORS 우회, 무료 무제한)
+const RSS_PROXY = 'https://api.allorigins.win/get?url=';
 
-// 뉴스 소스 (각 언어별)
+async function fetchRSS(url) {
+  const res = await fetch(RSS_PROXY + encodeURIComponent(url));
+  const data = await res.json();
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(data.contents, 'text/xml');
+  const items = xml.querySelectorAll('item');
+  return Array.from(items).map(item => ({
+    title:   item.querySelector('title')?.textContent?.trim() || '',
+    link:    item.querySelector('link')?.textContent?.trim() ||
+             item.querySelector('guid')?.textContent?.trim() || '',
+    desc:    (item.querySelector('description')?.textContent || '')
+              .replace(/<[^>]*>/g,'').trim().slice(0,120),
+    pubDate: item.querySelector('pubDate')?.textContent || '',
+  }));
+}
+
+// Google 뉴스 RSS 소스 (가장 안정적)
 const NEWS_SOURCES = {
   ko: [
-    {url:'https://www.blockmedia.co.kr/feed/', name:'블록미디어', cat:'crypto'},
-    {url:'https://www.coindeskkorea.com/feed/', name:'코인데스크코리아', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=암호화폐+비트코인&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=연준+금리+경제+주식&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'economy'},
-    {url:'https://news.google.com/rss/search?q=Locus+Chain&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'locus'},
+    {url:'https://news.google.com/rss/search?q=암호화폐+비트코인+이더리움&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=블록체인+코인+NFT&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=연준+금리+경제지표+주식시장&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=미국경제+인플레이션+달러환율&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=Locus+Chain+로커스체인&hl=ko&gl=KR&ceid=KR:ko', name:'Google뉴스', cat:'locus'},
   ],
   en: [
-    {url:'https://cointelegraph.com/rss', name:'CoinTelegraph', cat:'crypto'},
-    {url:'https://www.coindesk.com/arc/outboundfeeds/rss/', name:'CoinDesk', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=crypto+bitcoin+ethereum&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=federal+reserve+economy+inflation&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'economy'},
-    {url:'https://news.google.com/rss/search?q=Locus+Chain+blockchain&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'locus'},
+    {url:'https://news.google.com/rss/search?q=bitcoin+ethereum+crypto&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=cryptocurrency+blockchain+defi&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=federal+reserve+interest+rate+inflation&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=stock+market+economy+gdp&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=Locus+Chain+LOCUS+blockchain&hl=en-US&gl=US&ceid=US:en', name:'Google News', cat:'locus'},
   ],
   ja: [
-    {url:'https://coinpost.jp/?feed=rss2', name:'CoinPost', cat:'crypto'},
-    {url:'https://jp.cointelegraph.com/rss', name:'CoinTelegraph JP', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=暗号資産+ビットコイン&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'crypto'},
-    {url:'https://news.google.com/rss/search?q=FRB+金利+経済&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=ビットコイン+暗号資産+仮想通貨&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=ブロックチェーン+DeFi+Web3&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'crypto'},
+    {url:'https://news.google.com/rss/search?q=FRB+金利+日銀+経済指標&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=株式市場+為替+インフレ&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'economy'},
+    {url:'https://news.google.com/rss/search?q=Locus+Chain+ロカスチェーン&hl=ja&gl=JP&ceid=JP:ja', name:'Googleニュース', cat:'locus'},
   ],
 };
-
-let newsRefreshTimer = null;
 const NEWS_REFRESH_MS = 30 * 60 * 1000;
 const NEWS_STALE_MS  = 48 * 60 * 60 * 1000;
 
@@ -2552,18 +2569,14 @@ async function fetchNewsLang(langCode) {
   let allItems = [];
   await Promise.allSettled(sources.map(async src => {
     try {
-      const res = await fetch(RSS2JSON + encodeURIComponent(src.url) + '&count=8');
-      const data = await res.json();
-      if (data.status === 'ok' && data.items) {
-        data.items.forEach(item => {
-          allItems.push({
-            title: item.title, link: item.link,
-            desc: item.description ? item.description.replace(/<[^>]*>/g,'').slice(0,120) : '',
-            pubDate: item.pubDate, source: src.name, cat: src.cat,
-            age: item.pubDate ? Date.now() - new Date(item.pubDate).getTime() : 0,
-          });
+      const rssItems = await fetchRSS(src.url);
+      rssItems.slice(0,8).forEach(item => {
+        allItems.push({
+          title: item.title, link: item.link, desc: item.desc,
+          pubDate: item.pubDate, source: src.name, cat: src.cat,
+          age: item.pubDate ? Date.now() - new Date(item.pubDate).getTime() : 0,
         });
-      }
+      });
     } catch(e) {}
   }));
   const seen = new Set();
