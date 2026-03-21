@@ -1854,8 +1854,13 @@ function setLang(l) {
   // 노드맵 — 언어 전환 시 텍스트 재적용
   if (mapInited) {
     db.ref('visitors').once('value', snap => {
-      renderMap(snap.val() || {}, null);
+      renderMap(snap.val() || {}, myDetectedCountry);
     });
+    // 내 접속 국가 텍스트 재적용 (전역 변수 사용)
+    if (myDetectedCountry) {
+      const myText = document.getElementById('map-my-text');
+      if (myText) myText.textContent = t('map_my_loc') + ': ' + getCountryName(myDetectedCountry);
+    }
   }
   // 뉴스 — 언어 전환 시 목록 재렌더
   if (newsInited) {
@@ -2684,6 +2689,7 @@ document.addEventListener('click', function(e) {
    NODE MAP: IP 기반 국가 감지
 ══════════════════════════════════ */
 var mapInited = false;
+var myDetectedCountry = null; // IP 감지된 내 국가 코드 (전역 보관)
 
 // 국가 코드 → 이모지 플래그
 function countryFlag(code) {
@@ -2738,25 +2744,24 @@ async function initMap() {
   mapInited = true;
 
   // 1. 내 IP 국가 감지
-  let myCountry = null;
   try {
     const res = await fetch('https://ipapi.co/json/');
     const data = await res.json();
-    myCountry = data.country_code;
+    myDetectedCountry = data.country_code;
 
     // 내 위치 표시
     const myEl = document.getElementById('map-my-location');
     const myFlag = document.getElementById('map-my-flag');
     const myText = document.getElementById('map-my-text');
-    if (myEl && myCountry) {
+    if (myEl && myDetectedCountry) {
       myEl.style.display = 'flex';
-      myFlag.textContent = countryFlag(myCountry);
-      myText.textContent = `${t('map_my_loc')}: ${getCountryName(myCountry)}`;
+      myFlag.textContent = countryFlag(myDetectedCountry);
+      myText.textContent = `${t('map_my_loc')}: ${getCountryName(myDetectedCountry)}`;
     }
 
     // Firebase에 방문자 국가 저장
-    if (myCountry) {
-      db.ref('visitors/' + myCountry).transaction(cur => (cur || 0) + 1);
+    if (myDetectedCountry) {
+      db.ref('visitors/' + myDetectedCountry).transaction(cur => (cur || 0) + 1);
     }
   } catch(e) {
     console.warn('IP detect failed:', e);
@@ -2765,7 +2770,7 @@ async function initMap() {
   // 2. Firebase에서 전체 방문자 국가 데이터 구독
   db.ref('visitors').on('value', snap => {
     const data = snap.val() || {};
-    renderMap(data, myCountry);
+    renderMap(data, myDetectedCountry);
   });
 }
 
