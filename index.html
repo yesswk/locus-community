@@ -601,6 +601,13 @@ const db = firebase.database();
 .news-item-desc{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 .news-update-note{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:8px}
+.news-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:.05em}
+.news-badge.new{background:rgba(0,255,157,.15);color:var(--accent3);border:1px solid rgba(0,255,157,.3)}
+.news-badge.today{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2)}
+.news-badge.old{background:rgba(255,215,0,.08);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+.news-badge.stale{background:rgba(255,255,255,.03);color:var(--text3);border:1px solid var(--border)}
+.news-item.stale{opacity:.55}
+.news-item.stale:hover{opacity:.8}
 
 @media(max-width:600px){
   .news-lang-section{margin-bottom:24px}
@@ -2492,97 +2499,121 @@ const NEWS_SOURCES = {
   ],
 };
 
+let newsRefreshTimer = null;
+const NEWS_REFRESH_MS = 30 * 60 * 1000;
+const NEWS_STALE_MS  = 48 * 60 * 60 * 1000;
+
 async function initNews() {
   newsInited = true;
-  await Promise.all([
-    fetchNewsLang('ko'),
-    fetchNewsLang('en'),
-    fetchNewsLang('ja'),
-  ]);
+  await loadAllNews();
+  if (newsRefreshTimer) clearInterval(newsRefreshTimer);
+  newsRefreshTimer = setInterval(async () => {
+    if (document.getElementById('tab-news').classList.contains('active')) {
+      await loadAllNews();
+    }
+  }, NEWS_REFRESH_MS);
+}
+
+async function loadAllNews() {
+  ['ko','en','ja'].forEach(l => {
+    const el = document.getElementById('news-list-' + l);
+    if (el && newsData[l].length === 0)
+      el.innerHTML = `<div class="news-loading">${t('news_loading')}</div>`;
+  });
+  await Promise.all([fetchNewsLang('ko'), fetchNewsLang('en'), fetchNewsLang('ja')]);
   const now = new Date();
-  document.getElementById('news-update-note').textContent =
-    t('news_updated') + now.toLocaleString();
+  const noteEl = document.getElementById('news-update-note');
+  if (noteEl) noteEl.textContent = t('news_updated') + now.toLocaleTimeString(
+    lang==='ko'?'ko-KR':lang==='ja'?'ja-JP':'en-US', {hour:'2-digit',minute:'2-digit'}
+  );
+  startRefreshCountdown();
+}
+
+function startRefreshCountdown() {
+  let remaining = NEWS_REFRESH_MS / 1000;
+  if (window._newsCountdown) clearInterval(window._newsCountdown);
+  window._newsCountdown = setInterval(() => {
+    remaining -= 60;
+    if (remaining <= 0) { clearInterval(window._newsCountdown); return; }
+    const mins = Math.floor(remaining / 60);
+    const noteEl = document.getElementById('news-update-note');
+    if (!noteEl) return;
+    const base = t('news_updated') + new Date().toLocaleTimeString(
+      lang==='ko'?'ko-KR':lang==='ja'?'ja-JP':'en-US', {hour:'2-digit',minute:'2-digit'}
+    );
+    const suffix = lang==='ja'?`（${mins}分後に更新）`:lang==='en'?` (next update in ${mins}min)`:` (${mins}분 후 갱신)`;
+    noteEl.textContent = base + suffix;
+  }, 60000);
 }
 
 async function fetchNewsLang(langCode) {
   const sources = NEWS_SOURCES[langCode];
   const listEl = document.getElementById('news-list-' + langCode);
   let allItems = [];
-
   await Promise.allSettled(sources.map(async src => {
     try {
-      const res = await fetch(RSS2JSON + encodeURIComponent(src.url) + '&count=6');
+      const res = await fetch(RSS2JSON + encodeURIComponent(src.url) + '&count=8');
       const data = await res.json();
       if (data.status === 'ok' && data.items) {
         data.items.forEach(item => {
           allItems.push({
-            title: item.title,
-            link: item.link,
-            desc: item.description
-              ? item.description.replace(/<[^>]*>/g,'').slice(0,120)
-              : '',
-            pubDate: item.pubDate,
-            source: src.name,
-            cat: src.cat,
+            title: item.title, link: item.link,
+            desc: item.description ? item.description.replace(/<[^>]*>/g,'').slice(0,120) : '',
+            pubDate: item.pubDate, source: src.name, cat: src.cat,
+            age: item.pubDate ? Date.now() - new Date(item.pubDate).getTime() : 0,
           });
         });
       }
-    } catch(e) { /* 개별 소스 실패는 무시 */ }
+    } catch(e) {}
   }));
-
-  // 중복 제거 + 날짜순 정렬
   const seen = new Set();
   allItems = allItems
-    .filter(item => {
-      if (seen.has(item.title)) return false;
-      seen.add(item.title);
-      return true;
-    })
+    .filter(item => { if(seen.has(item.title)) return false; seen.add(item.title); return true; })
     .sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate))
-    .slice(0, 20);
-
+    .slice(0, 25);
   newsData[langCode] = allItems;
-
   if (!listEl) return;
-  if (allItems.length === 0) {
-    listEl.innerHTML = `<div class="news-error">${t('news_error')}</div>`;
-    return;
-  }
+  if (allItems.length === 0) { listEl.innerHTML = `<div class="news-error">${t('news_error')}</div>`; return; }
   renderNewsList(langCode);
+}
+
+function getTimeLabel(pubDate, langCode) {
+  if (!pubDate) return '';
+  const diff = Date.now() - new Date(pubDate).getTime();
+  const mins = Math.floor(diff/60000), hrs = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+  if (langCode==='ja') { if(mins<60) return mins+'分前'; if(hrs<24) return hrs+'時間前'; return days+'日前'; }
+  if (langCode==='en') { if(mins<60) return mins+'m ago'; if(hrs<24) return hrs+'h ago'; return days+'d ago'; }
+  if(mins<60) return mins+'분 전'; if(hrs<24) return hrs+'시간 전'; return days+'일 전';
+}
+
+function getNewsBadge(age, langCode) {
+  const hrs = age/3600000;
+  if (hrs<3)  return `<span class="news-badge new">${langCode==='ja'?'最新':langCode==='en'?'NEW':'최신'}</span>`;
+  if (hrs<24) return `<span class="news-badge today">${langCode==='ja'?'今日':langCode==='en'?'TODAY':'오늘'}</span>`;
+  if (hrs<48) return `<span class="news-badge old">${langCode==='ja'?'昨日':langCode==='en'?'1D':'1일전'}</span>`;
+  return `<span class="news-badge stale">${langCode==='ja'?Math.floor(hrs/24)+'日前':langCode==='en'?Math.floor(hrs/24)+'d':Math.floor(hrs/24)+'일전'}</span>`;
 }
 
 function renderNewsList(langCode) {
   const listEl = document.getElementById('news-list-' + langCode);
   if (!listEl) return;
-  const items = newsData[langCode].filter(item => {
-    if (newsCurrentFilter === 'all') return true;
-    return item.cat === newsCurrentFilter;
-  });
-
-  if (items.length === 0) {
-    listEl.innerHTML = `<div class="news-loading" style="color:var(--text3)">—</div>`;
-    return;
-  }
-
+  const items = newsData[langCode].filter(item =>
+    newsCurrentFilter === 'all' || item.cat === newsCurrentFilter
+  );
+  if (items.length === 0) { listEl.innerHTML = `<div class="news-loading" style="color:var(--text3)">—</div>`; return; }
   listEl.innerHTML = items.map(item => {
-    const tagLabel = item.cat === 'crypto' ? t('news_tag_crypto')
-      : item.cat === 'economy' ? t('news_tag_economy')
-      : t('news_tag_locus');
-    const timeStr = item.pubDate
-      ? new Date(item.pubDate).toLocaleDateString(
-          langCode === 'ko' ? 'ko-KR' : langCode === 'ja' ? 'ja-JP' : 'en-US',
-          {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}
-        )
-      : '';
+    const tagLabel = item.cat==='crypto'?t('news_tag_crypto'):item.cat==='economy'?t('news_tag_economy'):t('news_tag_locus');
+    const isStale = item.age > NEWS_STALE_MS;
     return `
-      <a class="news-item" href="${item.link}" target="_blank" rel="noopener">
+      <a class="news-item${isStale?' stale':''}" href="${item.link}" target="_blank" rel="noopener">
         <div class="news-item-header">
           <span class="news-item-source">${item.source}</span>
           <span class="news-item-tag ${item.cat}">${tagLabel}</span>
-          <span class="news-item-time">${timeStr}</span>
+          ${getNewsBadge(item.age, langCode)}
+          <span class="news-item-time">${getTimeLabel(item.pubDate, langCode)}</span>
         </div>
         <div class="news-item-title">${item.title}</div>
-        ${item.desc ? `<div class="news-item-desc">${item.desc}</div>` : ''}
+        ${item.desc?`<div class="news-item-desc">${item.desc}</div>`:''}
       </a>`;
   }).join('');
 }
