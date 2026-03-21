@@ -1224,6 +1224,19 @@ function claimBadge() {
   myBadges.push('genesis'); myPoints += 500;
   saveUserData(); updateWalletInfo(); renderBadges(); renderLeaderboard();
   showToast(t('toast_genesis'), 'success');
+
+  // Firebase 배지 카운터 증가
+  db.ref('stats/total_badges').transaction(cur => (cur || 0) + 1);
+
+  // Firebase에 홀더 등록 (참여자 수 집계용)
+  if (address) {
+    const safeAddr = address.replace(/[.#$\[\]]/g, '_');
+    db.ref('puzzle/contributors/' + safeAddr).set({
+      addr: address,
+      cells: 0,
+      ts: Date.now()
+    });
+  }
 }
 
 /* ══════════════════════════════════
@@ -1376,9 +1389,11 @@ function showResult() {
     quizBadges.push('quiz_master'); localStorage.setItem('locus_quiz_badges', JSON.stringify(quizBadges));
     badge = '🧠 Quiz Master';
     showToast(t('toast_quiz_master'), 'gold');
+    db.ref('stats/total_badges').transaction(cur => (cur || 0) + 1);
   } else if (s >= 7 && !quizBadges.includes('quiz_pro')) {
     quizBadges.push('quiz_pro'); localStorage.setItem('locus_quiz_badges', JSON.stringify(quizBadges));
     badge = '⭐ Quiz Pro';
+    db.ref('stats/total_badges').transaction(cur => (cur || 0) + 1);
   }
   document.getElementById('rr-badge').textContent = badge;
 }
@@ -1484,10 +1499,6 @@ function initPosts() {
       posts.unshift({...child.val(), key: child.key});
     });
     renderPosts();
-    // 참여자 수 통계 업데이트
-    const uniqueAuthors = new Set(posts.map(p => p.author));
-    const el = document.getElementById('stat-members');
-    if (el) el.textContent = Math.max(1247, uniqueAuthors.size + 1247).toLocaleString();
   });
 }
 
@@ -1531,6 +1542,7 @@ function submitPost() {
       myBadges.push('educator'); myPoints += 150;
       showToast(t('toast_educator'), 'success');
       renderBadges(); updateWalletInfo();
+      db.ref('stats/total_badges').transaction(cur => (cur || 0) + 1);
     }
     saveUserData();
     input.value = '';
@@ -1574,15 +1586,26 @@ renderPosts();
 renderTxBoard();
 updateNavPts();
 
-// 통계 카운터 애니메이션
-function animCount(el, target) {
-  let cur = 0; const step = Math.ceil(target/40);
-  const iv = setInterval(() => { cur = Math.min(cur+step,target); el.textContent = cur.toLocaleString(); if(cur>=target)clearInterval(iv); },30);
+/* ══════════════════════════════════
+   실시간 통계 — Firebase 기반
+══════════════════════════════════ */
+function initStats() {
+  // 참여 홀더 수 — puzzle/contributors 고유 주소 수
+  db.ref('puzzle/contributors').on('value', snap => {
+    const data = snap.val();
+    const count = data ? Object.keys(data).length : 0;
+    const el = document.getElementById('stat-members');
+    if (el) el.textContent = count.toLocaleString();
+  });
+
+  // 발급된 배지 수 — badges 경로에 누적 저장
+  db.ref('stats/total_badges').on('value', snap => {
+    const count = snap.val() || 0;
+    const el = document.getElementById('stat-badges');
+    if (el) el.textContent = count.toLocaleString();
+  });
 }
-setTimeout(() => {
-  animCount(document.getElementById('stat-members'), 1247);
-  animCount(document.getElementById('stat-badges'),  3891);
-}, 400);
+initStats();
 
 /* ══════════════════════════════════
    PRICE: CoinGecko API
