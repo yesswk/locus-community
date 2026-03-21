@@ -517,19 +517,19 @@ const db = firebase.database();
   <div class="container">
     <div class="section-header">
       <div class="section-title" data-i18n="tab_map">🌍 노드맵</div>
-      <div class="section-sub" id="map-sub">커뮤니티 방문자 국가 분포 (IP 기반)</div>
+      <div class="section-sub" id="map-sub" data-i18n="map_sub">커뮤니티 방문자 국가 분포 (IP 기반)</div>
     </div>
 
     <!-- 상단 통계 -->
     <div class="map-stats-bar">
-      <div class="map-stat"><span class="map-stat-num" id="map-total">—</span><div class="map-stat-label">총 방문자</div></div>
-      <div class="map-stat"><span class="map-stat-num" id="map-countries">—</span><div class="map-stat-label">참여 국가</div></div>
-      <div class="map-stat"><span class="map-stat-num" id="map-top-country">—</span><div class="map-stat-label">최다 참여국</div></div>
+      <div class="map-stat"><span class="map-stat-num" id="map-total">—</span><div class="map-stat-label" data-i18n="map_total">총 방문자</div></div>
+      <div class="map-stat"><span class="map-stat-num" id="map-countries">—</span><div class="map-stat-label" data-i18n="map_countries">참여 국가</div></div>
+      <div class="map-stat"><span class="map-stat-num" id="map-top-country">—</span><div class="map-stat-label" data-i18n="map_top">최다 참여국</div></div>
     </div>
 
     <!-- SVG 세계지도 -->
     <div class="map-wrap">
-      <div class="map-loading" id="map-loading">🌍 지도 로딩 중...</div>
+      <div class="map-loading" id="map-loading" data-i18n="map_loading">🌍 지도 로딩 중...</div>
       <svg id="world-map" viewBox="0 0 1000 500" style="width:100%;display:none">
         <!-- 간략화된 주요 국가 윤곽 -->
       </svg>
@@ -539,7 +539,7 @@ const db = firebase.database();
 
     <!-- 국가별 순위 -->
     <div class="map-ranking-card">
-      <div class="map-ranking-title">🏆 국가별 참여 순위</div>
+      <div class="map-ranking-title" data-i18n="map_ranking">🏆 국가별 참여 순위</div>
       <div id="map-country-list"></div>
     </div>
 
@@ -549,7 +549,7 @@ const db = firebase.database();
       <span id="map-my-text"></span>
     </div>
 
-    <div class="map-note">* IP 기반 국가 감지. VPN 사용 시 실제 위치와 다를 수 있습니다.</div>
+    <div class="map-note" data-i18n="map_note">* IP 기반 국가 감지. VPN 사용 시 실제 위치와 다를 수 있습니다.</div>
   </div>
 </div>
 
@@ -1337,6 +1337,15 @@ const I18N = {
     btn_claim_done:'✓ Genesis 배지 보유 중',
     stat_members:'참여 홀더', stat_badges:'발급된 배지', stat_txs:'테스트넷 트랜잭션',
     stat_members_soon:'모집 중', stat_badges_soon:'곧 시작',
+    map_sub:'커뮤니티 방문자 국가 분포 (IP 기반)',
+    map_total:'총 방문자', map_countries:'참여 국가', map_top:'최다 참여국',
+    map_ranking:'🏆 국가별 참여 순위',
+    map_my_loc:'내 접속 국가',
+    map_note:'* IP 기반 국가 감지. VPN 사용 시 실제 위치와 다를 수 있습니다.',
+    map_legend_me:'● 내 위치', map_legend_top:'● 최다 참여국',
+    map_loading:'🌍 지도 로딩 중...',
+    continent_america:'아메리카', continent_europe:'유럽', continent_asia:'아시아',
+    continent_africa:'아프리카', continent_oceania:'오세아니아',
     badges_title:'// 배지 컬렉션', badges_sub:'활동을 통해 배지를 획득하세요',
     badge_earned:'✓ 획득', badge_locked_prefix:'+',
     ranking_title:'// 리더보드', ranking_sub:'테스트넷 기여도 순위',
@@ -1440,6 +1449,15 @@ const I18N = {
     btn_claim_done:'✓ Genesis Badge Owned',
     stat_members:'Participants', stat_badges:'Badges Issued', stat_txs:'Testnet Transactions',
     stat_members_soon:'Coming Soon', stat_badges_soon:'Coming Soon',
+    map_sub:'Community visitor distribution by country (IP-based)',
+    map_total:'Total Visitors', map_countries:'Countries', map_top:'Top Country',
+    map_ranking:'🏆 Country Ranking',
+    map_my_loc:'Your location',
+    map_note:'* Country detected via IP address. May differ if using VPN.',
+    map_legend_me:'● My Location', map_legend_top:'● Top Country',
+    map_loading:'🌍 Loading map...',
+    continent_america:'Americas', continent_europe:'Europe', continent_asia:'Asia',
+    continent_africa:'Africa', continent_oceania:'Oceania',
     badges_title:'// Badge Collection', badges_sub:'Earn badges through your activities',
     badge_earned:'✓ Earned', badge_locked_prefix:'+',
     ranking_title:'// Leaderboard', ranking_sub:'Ranking by testnet contribution',
@@ -1527,6 +1545,15 @@ const I18N = {
     btn_claim_done:'✓ Genesisバッジ取得済み',
     stat_members:'参加ホルダー', stat_badges:'発行バッジ数', stat_txs:'テストネットTX',
     stat_members_soon:'募集中', stat_badges_soon:'まもなく開始',
+    map_sub:'コミュニティ訪問者の国別分布（IP基準）',
+    map_total:'総訪問者', map_countries:'参加国', map_top:'最多参加国',
+    map_ranking:'🏆 国別参加ランキング',
+    map_my_loc:'あなたの接続国',
+    map_note:'* IPアドレスで国を検出。VPN使用時は実際の場所と異なる場合があります。',
+    map_legend_me:'● 自分の位置', map_legend_top:'● 最多参加国',
+    map_loading:'🌍 マップ読み込み中...',
+    continent_america:'アメリカ大陸', continent_europe:'ヨーロッパ', continent_asia:'アジア',
+    continent_africa:'アフリカ', continent_oceania:'オセアニア',
     badges_title:'// バッジコレクション', badges_sub:'活動を通じてバッジを獲得しよう',
     badge_earned:'✓ 取得済み', badge_locked_prefix:'+',
     ranking_title:'// リーダーボード', ranking_sub:'テストネット貢献度ランキング',
@@ -1703,6 +1730,12 @@ function setLang(l) {
   renderPosts();
   renderPredictions();
   renderTxBoard();
+  // 노드맵 — 언어 전환 시 텍스트 재적용
+  if (mapInited) {
+    db.ref('visitors').once('value', snap => {
+      renderMap(snap.val() || {}, null);
+    });
+  }
 }
 
 /* ══════════════════════════════════
@@ -2304,11 +2337,7 @@ async function initMap() {
     if (myEl && myCountry) {
       myEl.style.display = 'flex';
       myFlag.textContent = countryFlag(myCountry);
-      myText.textContent = lang==='ja'
-        ? `あなたの接続国: ${getCountryName(myCountry)}`
-        : lang==='en'
-        ? `Your location: ${getCountryName(myCountry)}`
-        : `내 접속 국가: ${getCountryName(myCountry)}`;
+      myText.textContent = `${t('map_my_loc')}: ${getCountryName(myCountry)}`;
     }
 
     // Firebase에 방문자 국가 저장
@@ -2359,11 +2388,11 @@ function renderMap(data, myCountry) {
 
   // 대륙 윤곽 (단순 사각형 블록으로 표현)
   const continents = [
-    {x:60,y:80,w:280,h:240,c:'rgba(0,212,255,0.04)',label:'아메리카'},
-    {x:430,y:80,w:130,h:200,c:'rgba(0,212,255,0.04)',label:'유럽'},
-    {x:540,y:80,w:200,h:220,c:'rgba(0,212,255,0.04)',label:'아시아'},
-    {x:430,y:200,w:130,h:200,c:'rgba(0,212,255,0.04)',label:'아프리카'},
-    {x:700,y:280,w:160,h:120,c:'rgba(0,212,255,0.04)',label:'오세아니아'},
+    {x:60,y:80,w:280,h:240,c:'rgba(0,212,255,0.04)',label:t('continent_america')},
+    {x:430,y:80,w:130,h:200,c:'rgba(0,212,255,0.04)',label:t('continent_europe')},
+    {x:540,y:80,w:200,h:220,c:'rgba(0,212,255,0.04)',label:t('continent_asia')},
+    {x:430,y:200,w:130,h:200,c:'rgba(0,212,255,0.04)',label:t('continent_africa')},
+    {x:700,y:280,w:160,h:120,c:'rgba(0,212,255,0.04)',label:t('continent_oceania')},
   ];
   continents.forEach(c => {
     ctx.fillStyle = c.c;
@@ -2416,9 +2445,9 @@ function renderMap(data, myCountry) {
   ctx.font = '10px monospace';
   ctx.fillStyle = 'rgba(0,255,157,0.8)';
   ctx.textAlign = 'left';
-  ctx.fillText('● 내 위치', 10, H-28);
+  ctx.fillText(t('map_legend_me'), 10, H-28);
   ctx.fillStyle = 'rgba(255,215,0,0.8)';
-  ctx.fillText('● 최다 참여국', 10, H-14);
+  ctx.fillText(t('map_legend_top'), 10, H-14);
 
   // 국가 순위 리스트
   const listEl = document.getElementById('map-country-list');
